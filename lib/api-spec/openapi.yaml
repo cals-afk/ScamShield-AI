@@ -107,7 +107,11 @@ components:
         message:
           type: string
           minLength: 1
-          description: The text message to analyse for scam indicators
+          description: The text or phone number to analyse for scam indicators
+        inputType:
+          type: string
+          enum: [message, phone_number]
+          description: The type of input being analysed (defaults to message)
     ScamAnalysis:
       type: object
       required:

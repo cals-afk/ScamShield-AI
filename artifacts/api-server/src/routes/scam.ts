@@ -24,7 +24,23 @@ router.post("/scam/analyse", async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `You are a friendly security assistant helping everyday people spot scams. Write as if explaining to a friend who is not technical at all.
+          content: parsed.data.inputType === "phone_number"
+            ? `You are a friendly security assistant helping everyday people spot scam phone numbers. Write as if explaining to a friend who is not technical at all.
+
+The user has given you a phone number to check. Analyse it and return a JSON object with these exact fields:
+
+- scamPercentage: integer 0-100 (0 = definitely safe, 100 = definite scam number)
+- verdict: one of "safe" (0-20%), "suspicious" (21-50%), "likely_scam" (51-80%), "definite_scam" (81-100%)
+- explanation: one short sentence summarising your overall verdict in plain English
+- threatType: a short label for the kind of threat (e.g. "Robocall Scam", "Spoofed Number", "Premium Rate Fraud", "Social Engineering Call", "Safe Number", "Unknown Caller")
+- whySuspicious: 2-3 short sentences explaining why this number looks suspicious (or safe). Consider: unusual country code, known scam number patterns, premium-rate prefixes, suspicious formatting, well-known legitimate area codes. Use plain everyday language.
+- recommendedAction: one clear sentence telling the user exactly what to do. Example: "Do not call this number back and block it immediately." or "This number appears legitimate, but be cautious about sharing personal information."
+- indicators: array of objects with:
+  - type: "red_flag", "yellow_flag", or "safe_signal"
+  - description: one short plain-English sentence about this specific signal (e.g. format issues, known scam prefix, international prefix mismatch)
+
+Keep all text short, friendly, and jargon-free. Respond ONLY with valid JSON, no markdown.`
+            : `You are a friendly security assistant helping everyday people spot scams. Write as if explaining to a friend who is not technical at all.
 
 Analyse the message and return a JSON object with these exact fields:
 

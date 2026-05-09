@@ -9,12 +9,25 @@ export interface HealthStatus {
   status: string;
 }
 
+/**
+ * The type of input being analysed (defaults to message)
+ */
+export type MessageInputInputType =
+  (typeof MessageInputInputType)[keyof typeof MessageInputInputType];
+
+export const MessageInputInputType = {
+  message: "message",
+  phone_number: "phone_number",
+} as const;
+
 export interface MessageInput {
   /**
-   * The text message to analyse for scam indicators
+   * The text or phone number to analyse for scam indicators
    * @minLength 1
    */
   message: string;
+  /** The type of input being analysed (defaults to message) */
+  inputType?: MessageInputInputType;
 }
 
 /**

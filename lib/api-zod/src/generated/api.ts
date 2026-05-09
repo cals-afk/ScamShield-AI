@@ -24,7 +24,11 @@ export const AnalyseMessageBody = zod.object({
   message: zod
     .string()
     .min(1)
-    .describe("The text message to analyse for scam indicators"),
+    .describe("The text or phone number to analyse for scam indicators"),
+  inputType: zod
+    .enum(["message", "phone_number"])
+    .optional()
+    .describe("The type of input being analysed (defaults to message)"),
 });
 
 export const analyseMessageResponseScamPercentageMin = 0;

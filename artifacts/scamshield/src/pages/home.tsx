@@ -1,19 +1,32 @@
 import { useState } from "react";
 import { useAnalyseMessage } from "@workspace/api-client-react";
-import { AlertCircle, CheckCircle, Shield, ShieldAlert, ShieldCheck, Zap } from "lucide-react";
+import { AlertCircle, CheckCircle, MessageSquare, Phone, Shield, ShieldAlert, ShieldCheck, Zap } from "lucide-react";
 import type { ScamAnalysis } from "@workspace/api-client-react/src/generated/api.schemas";
 import { useTheme } from "@/context/ThemeContext";
 
+type InputMode = "message" | "phone_number";
+
 export default function Home() {
+  const [inputMode, setInputMode] = useState<InputMode>("message");
   const [message, setMessage] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const analyseMessageMutation = useAnalyseMessage();
   const { theme, character } = useTheme();
 
   const primary = theme?.primaryColor ?? "#00d4ff";
 
+  const activeInput = inputMode === "message" ? message : phoneNumber;
+
   const handleAnalyse = () => {
-    if (!message.trim()) return;
-    analyseMessageMutation.mutate({ data: { message } });
+    if (!activeInput.trim()) return;
+    analyseMessageMutation.mutate({
+      data: { message: activeInput.trim(), inputType: inputMode },
+    });
+  };
+
+  const handleModeSwitch = (mode: InputMode) => {
+    setInputMode(mode);
+    analyseMessageMutation.reset();
   };
 
   return (
@@ -51,27 +64,77 @@ export default function Home() {
           )}
         </header>
 
-        <section className="flex flex-col gap-6">
+        <section className="flex flex-col gap-5">
+          {/* Mode tabs */}
+          <div
+            className="flex rounded-xl border p-1 gap-1"
+            style={{ borderColor: `${primary}30`, backgroundColor: `${primary}08` }}
+          >
+            {(["message", "phone_number"] as InputMode[]).map((mode) => {
+              const isActive = inputMode === mode;
+              const Icon = mode === "message" ? MessageSquare : Phone;
+              const label = mode === "message" ? "Message / SMS" : "Phone Number";
+              return (
+                <button
+                  key={mode}
+                  data-testid={`tab-${mode}`}
+                  onClick={() => handleModeSwitch(mode)}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-mono text-sm font-bold uppercase tracking-wider transition-all duration-300"
+                  style={
+                    isActive
+                      ? {
+                          backgroundColor: primary,
+                          color: theme?.backgroundColor ?? "#0a0e1a",
+                          boxShadow: `0 0 16px ${primary}66`,
+                        }
+                      : { color: `${primary}88` }
+                  }
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Input area */}
           <div className="relative group">
             <div
               className="absolute -inset-0.5 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"
               style={{ background: `${primary}33` }}
             />
-            <textarea
-              data-testid="input-message"
-              className="relative w-full h-48 md:h-64 bg-card border border-border rounded-xl p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-none font-mono text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
-              style={{ "--tw-ring-color": primary } as React.CSSProperties}
-              placeholder="PASTE SUSPICIOUS MESSAGE HERE..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
+            {inputMode === "message" ? (
+              <textarea
+                data-testid="input-message"
+                className="relative w-full h-48 md:h-56 bg-card border border-border rounded-xl p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-none font-mono text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
+                style={{ "--tw-ring-color": primary } as React.CSSProperties}
+                placeholder="PASTE SUSPICIOUS MESSAGE HERE..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            ) : (
+              <div className="relative w-full bg-card border border-border rounded-xl px-5 py-5 flex items-center gap-3 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:border-transparent transition-all"
+                style={{ "--tw-ring-color": primary } as React.CSSProperties}
+              >
+                <Phone className="w-5 h-5 shrink-0" style={{ color: `${primary}88` }} />
+                <input
+                  data-testid="input-phone"
+                  type="tel"
+                  className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none font-mono text-base md:text-lg tracking-widest"
+                  placeholder="+1 800 555 0199"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAnalyse()}
+                />
+              </div>
+            )}
           </div>
 
           <button
             data-testid="button-analyse"
             onClick={handleAnalyse}
-            disabled={analyseMessageMutation.isPending || !message.trim()}
-            className="group relative w-full flex justify-center py-4 px-4 border text-lg font-bold rounded-xl text-primary-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+            disabled={analyseMessageMutation.isPending || !activeInput.trim()}
+            className="group relative w-full flex justify-center py-4 px-4 border text-lg font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
             style={{
               backgroundColor: primary,
               borderColor: `${primary}66`,
@@ -95,7 +158,7 @@ export default function Home() {
               ) : (
                 <>
                   <ShieldCheck className="transition-transform duration-300 group-hover:rotate-12" />
-                  ANALYSE THREAT
+                  {inputMode === "message" ? "ANALYSE THREAT" : "CHECK NUMBER"}
                 </>
               )}
             </span>

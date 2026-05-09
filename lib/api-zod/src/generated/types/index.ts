@@ -12,6 +12,7 @@ export * from "./characterThemeParticleShape";
 export * from "./errorResponse";
 export * from "./healthStatus";
 export * from "./messageInput";
+export * from "./messageInputInputType";
 export * from "./scamAnalysis";
 export * from "./scamAnalysisVerdict";
 export * from "./scamIndicator";

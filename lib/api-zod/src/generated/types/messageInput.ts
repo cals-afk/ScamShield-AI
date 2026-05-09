@@ -5,11 +5,14 @@
  * ScamShield AI API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { MessageInputInputType } from "./messageInputInputType";
 
 export interface MessageInput {
   /**
-   * The text message to analyse for scam indicators
+   * The text or phone number to analyse for scam indicators
    * @minLength 1
    */
   message: string;
+  /** The type of input being analysed (defaults to message) */
+  inputType?: MessageInputInputType;
 }
