@@ -41,7 +41,6 @@ Respond ONLY with valid JSON, no markdown.`,
         },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.1,
     });
 
     const raw = completion.choices[0]?.message?.content;
