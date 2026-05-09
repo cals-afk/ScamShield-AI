@@ -11,12 +11,14 @@ router.post("/scam/analyse", async (req, res) => {
     return;
   }
 
-  const { message } = parse.data;
+  const { message, inputType } = parse.data;
 
   if (!message.trim()) {
     res.status(400).json({ error: "Message cannot be empty" });
     return;
   }
+
+  const isPhoneNumber = inputType === "phone_number";
 
   try {
     const completion = await openai.chat.completions.create({
@@ -24,7 +26,7 @@ router.post("/scam/analyse", async (req, res) => {
       messages: [
         {
           role: "system",
-          content: parsed.data.inputType === "phone_number"
+          content: isPhoneNumber
             ? `You are a friendly security assistant helping everyday people spot scam phone numbers. Write as if explaining to a friend who is not technical at all.
 
 The user has given you a phone number to check. Analyse it and return a JSON object with these exact fields:
@@ -58,7 +60,9 @@ Keep all text short, friendly, and jargon-free. Respond ONLY with valid JSON, no
         },
         {
           role: "user",
-          content: `Analyse this message for scam indicators:\n\n${message}`,
+          content: isPhoneNumber
+            ? `Check this phone number for scam indicators:\n\n${message}`
+            : `Analyse this message for scam indicators:\n\n${message}`,
         },
       ],
       response_format: { type: "json_object" },
