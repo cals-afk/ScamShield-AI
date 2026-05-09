@@ -57,7 +57,6 @@ Respond ONLY with valid JSON matching this exact structure, no markdown:
         },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.7,
     });
 
     const raw = completion.choices[0]?.message?.content;
