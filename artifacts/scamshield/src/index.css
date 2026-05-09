@@ -148,6 +148,43 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
+@keyframes neon-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 8px rgba(0, 212, 255, 0.9),
+      0 0 20px rgba(0, 212, 255, 0.7),
+      0 0 40px rgba(0, 212, 255, 0.5),
+      0 0 80px rgba(0, 212, 255, 0.3);
+  }
+  50% {
+    text-shadow:
+      0 0 12px rgba(0, 212, 255, 1),
+      0 0 30px rgba(0, 212, 255, 0.9),
+      0 0 60px rgba(0, 212, 255, 0.7),
+      0 0 120px rgba(0, 212, 255, 0.4),
+      0 0 200px rgba(0, 212, 255, 0.2);
+  }
+}
+
+@keyframes shield-glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.8)) drop-shadow(0 0 16px rgba(0, 212, 255, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 1)) drop-shadow(0 0 28px rgba(0, 212, 255, 0.7)) drop-shadow(0 0 50px rgba(0, 212, 255, 0.3));
+  }
+}
+
+.neon-title {
+  animation: neon-pulse 3s ease-in-out infinite;
+  color: #00d4ff;
+}
+
+.neon-shield {
+  animation: shield-glow-pulse 3s ease-in-out infinite;
+  color: #00d4ff;
+}
+
 @layer base {
   * {
     @apply border-border;

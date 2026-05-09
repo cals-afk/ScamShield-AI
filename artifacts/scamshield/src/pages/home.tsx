@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAnalyseMessage } from "@workspace/api-client-react";
-import { AlertCircle, CheckCircle, ShieldAlert, ShieldCheck, Zap } from "lucide-react";
+import { AlertCircle, CheckCircle, Shield, ShieldAlert, ShieldCheck, Zap } from "lucide-react";
 import type { ScamAnalysis } from "@workspace/api-client-react/src/generated/api.schemas";
 
 export default function Home() {
@@ -19,7 +19,8 @@ export default function Home() {
       
       <div className="z-10 w-full max-w-3xl flex flex-col gap-8">
         <header className="text-center space-y-4">
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-primary drop-shadow-[0_0_15px_rgba(0,212,255,0.5)]">
+          <h1 className="neon-title text-5xl md:text-6xl font-extrabold tracking-tight flex items-center justify-center gap-4">
+            <Shield className="neon-shield w-12 h-12 md:w-14 md:h-14 shrink-0" />
             ScamShield AI
           </h1>
           <p className="text-muted-foreground text-lg md:text-xl font-mono uppercase tracking-widest">
@@ -43,10 +44,10 @@ export default function Home() {
             data-testid="button-analyse"
             onClick={handleAnalyse}
             disabled={analyseMessageMutation.isPending || !message.trim()}
-            className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-lg font-bold rounded-xl text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden shadow-[0_0_20px_rgba(0,212,255,0.3)] hover:shadow-[0_0_30px_rgba(0,212,255,0.6)]"
+            className="group relative w-full flex justify-center py-4 px-4 border border-primary/40 text-lg font-bold rounded-xl text-primary-foreground bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden shadow-[0_0_20px_rgba(0,212,255,0.35)] hover:shadow-[0_0_40px_rgba(0,212,255,0.75),0_0_80px_rgba(0,212,255,0.3)] hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
           >
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-            <span className="relative flex items-center gap-2">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
+            <span className="relative flex items-center gap-2 transition-transform duration-300 group-hover:gap-3">
               {analyseMessageMutation.isPending ? (
                 <>
                   <Zap className="animate-pulse" />
@@ -54,7 +55,7 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <ShieldCheck />
+                  <ShieldCheck className="transition-transform duration-300 group-hover:rotate-12" />
                   ANALYSE THREAT
                 </>
               )}
