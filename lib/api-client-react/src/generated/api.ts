@@ -17,6 +17,8 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  CharacterInput,
+  CharacterTheme,
   ErrorResponse,
   HealthStatus,
   MessageInput,
@@ -193,4 +195,91 @@ export const useAnalyseMessage = <
   TContext
 > => {
   return useMutation(getAnalyseMessageMutationOptions(options));
+};
+
+/**
+ * Uses AI to derive a futuristic cybersecurity color theme from a character name
+ * @summary Generate a color theme inspired by a character
+ */
+export const getGenerateThemeUrl = () => {
+  return `/api/theme/generate`;
+};
+
+export const generateTheme = async (
+  characterInput: CharacterInput,
+  options?: RequestInit,
+): Promise<CharacterTheme> => {
+  return customFetch<CharacterTheme>(getGenerateThemeUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(characterInput),
+  });
+};
+
+export const getGenerateThemeMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateTheme>>,
+    TError,
+    { data: BodyType<CharacterInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof generateTheme>>,
+  TError,
+  { data: BodyType<CharacterInput> },
+  TContext
+> => {
+  const mutationKey = ["generateTheme"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof generateTheme>>,
+    { data: BodyType<CharacterInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return generateTheme(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type GenerateThemeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof generateTheme>>
+>;
+export type GenerateThemeMutationBody = BodyType<CharacterInput>;
+export type GenerateThemeMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Generate a color theme inspired by a character
+ */
+export const useGenerateTheme = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateTheme>>,
+    TError,
+    { data: BodyType<CharacterInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof generateTheme>>,
+  TError,
+  { data: BodyType<CharacterInput> },
+  TContext
+> => {
+  return useMutation(getGenerateThemeMutationOptions(options));
 };

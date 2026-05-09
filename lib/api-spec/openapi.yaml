@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: scam
     description: Scam detection operations
+  - name: theme
+    description: Theme generation operations
 paths:
   /healthz:
     get:
@@ -45,6 +47,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ScamAnalysis"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /theme/generate:
+    post:
+      operationId: generateTheme
+      tags: [theme]
+      summary: Generate a color theme inspired by a character
+      description: Uses AI to derive a futuristic cybersecurity color theme from a character name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CharacterInput"
+      responses:
+        "200":
+          description: Generated theme
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CharacterTheme"
         "400":
           description: Bad request
           content:
@@ -112,6 +145,52 @@ components:
           enum: [red_flag, yellow_flag, safe_signal]
         description:
           type: string
+    CharacterInput:
+      type: object
+      required:
+        - character
+      properties:
+        character:
+          type: string
+          minLength: 1
+          description: The name of the character or hero to inspire the theme
+    CharacterTheme:
+      type: object
+      required:
+        - primaryColor
+        - secondaryColor
+        - accentColor
+        - backgroundColor
+        - foregroundColor
+        - label
+        - tagline
+        - particleShape
+      properties:
+        primaryColor:
+          type: string
+          description: Main neon accent color (hex)
+        secondaryColor:
+          type: string
+          description: Supporting color (hex)
+        accentColor:
+          type: string
+          description: Highlight / glow color (hex)
+        backgroundColor:
+          type: string
+          description: Deep background color (hex)
+        foregroundColor:
+          type: string
+          description: Text/icon color (hex)
+        label:
+          type: string
+          description: Short thematic label for the hero (e.g. "STARK PROTOCOL")
+        tagline:
+          type: string
+          description: Short cinematic tagline shown during activation (e.g. "Suit online. Threat detected.")
+        particleShape:
+          type: string
+          enum: [circle, triangle, diamond, hex, star]
+          description: Shape of background particles
     ErrorResponse:
       type: object
       required:

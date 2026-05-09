@@ -51,3 +51,34 @@ export const AnalyseMessageResponse = zod.object({
     )
     .describe("Specific red flags or reassuring factors found"),
 });
+
+/**
+ * Uses AI to derive a futuristic cybersecurity color theme from a character name
+ * @summary Generate a color theme inspired by a character
+ */
+
+export const GenerateThemeBody = zod.object({
+  character: zod
+    .string()
+    .min(1)
+    .describe("The name of the character or hero to inspire the theme"),
+});
+
+export const GenerateThemeResponse = zod.object({
+  primaryColor: zod.string().describe("Main neon accent color (hex)"),
+  secondaryColor: zod.string().describe("Supporting color (hex)"),
+  accentColor: zod.string().describe("Highlight \/ glow color (hex)"),
+  backgroundColor: zod.string().describe("Deep background color (hex)"),
+  foregroundColor: zod.string().describe("Text\/icon color (hex)"),
+  label: zod
+    .string()
+    .describe('Short thematic label for the hero (e.g. \"STARK PROTOCOL\")'),
+  tagline: zod
+    .string()
+    .describe(
+      'Short cinematic tagline shown during activation (e.g. \"Suit online. Threat detected.\")',
+    ),
+  particleShape: zod
+    .enum(["circle", "triangle", "diamond", "hex", "star"])
+    .describe("Shape of background particles"),
+});

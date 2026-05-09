@@ -59,6 +59,47 @@ export interface ScamAnalysis {
   indicators: ScamIndicator[];
 }
 
+export interface CharacterInput {
+  /**
+   * The name of the character or hero to inspire the theme
+   * @minLength 1
+   */
+  character: string;
+}
+
+/**
+ * Shape of background particles
+ */
+export type CharacterThemeParticleShape =
+  (typeof CharacterThemeParticleShape)[keyof typeof CharacterThemeParticleShape];
+
+export const CharacterThemeParticleShape = {
+  circle: "circle",
+  triangle: "triangle",
+  diamond: "diamond",
+  hex: "hex",
+  star: "star",
+} as const;
+
+export interface CharacterTheme {
+  /** Main neon accent color (hex) */
+  primaryColor: string;
+  /** Supporting color (hex) */
+  secondaryColor: string;
+  /** Highlight / glow color (hex) */
+  accentColor: string;
+  /** Deep background color (hex) */
+  backgroundColor: string;
+  /** Text/icon color (hex) */
+  foregroundColor: string;
+  /** Short thematic label for the hero (e.g. "STARK PROTOCOL") */
+  label: string;
+  /** Short cinematic tagline shown during activation (e.g. "Suit online. Threat detected.") */
+  tagline: string;
+  /** Shape of background particles */
+  particleShape: CharacterThemeParticleShape;
+}
+
 export interface ErrorResponse {
   error: string;
 }

@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./characterInput";
+export * from "./characterTheme";
+export * from "./characterThemeParticleShape";
 export * from "./errorResponse";
 export * from "./healthStatus";
 export * from "./messageInput";
