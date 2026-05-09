@@ -115,6 +115,9 @@ components:
         - verdict
         - explanation
         - indicators
+        - threatType
+        - whySuspicious
+        - recommendedAction
       properties:
         scamPercentage:
           type: integer
@@ -128,6 +131,15 @@ components:
         explanation:
           type: string
           description: Plain-language explanation of the analysis
+        threatType:
+          type: string
+          description: Short label for the type of threat (e.g. "Prize Scam", "Phishing Link", "Impersonation")
+        whySuspicious:
+          type: string
+          description: Simple everyday explanation of why this message is dangerous, written for a non-technical user
+        recommendedAction:
+          type: string
+          description: Clear, actionable advice for what the user should do
         indicators:
           type: array
           items:

@@ -120,6 +120,36 @@ export default function Home() {
   );
 }
 
+function InfoSection({
+  label,
+  value,
+  icon: Icon,
+  accentColor,
+}: {
+  label: string;
+  value: string;
+  icon: React.ElementType;
+  accentColor: string;
+}) {
+  return (
+    <div
+      className="rounded-xl border p-4 flex flex-col gap-2"
+      style={{ borderColor: `${accentColor}30`, backgroundColor: `${accentColor}08` }}
+    >
+      <div className="flex items-center gap-2">
+        <Icon className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
+        <span
+          className="font-mono text-xs uppercase tracking-widest font-bold"
+          style={{ color: accentColor }}
+        >
+          {label}
+        </span>
+      </div>
+      <p className="text-foreground/90 text-sm leading-relaxed">{value}</p>
+    </div>
+  );
+}
+
 function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePrimary: string }) {
   const getRiskColor = (percentage: number) => {
     if (percentage <= 20) return "#34d399";
@@ -137,13 +167,14 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
 
   return (
     <div
-      className="mt-4 p-6 md:p-8 rounded-2xl border backdrop-blur-sm animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out flex flex-col gap-8"
+      className="mt-4 rounded-2xl border backdrop-blur-sm animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out flex flex-col gap-0 overflow-hidden"
       style={getRiskBg(result.scamPercentage)}
       data-testid="section-result"
     >
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
+      {/* Top: gauge + verdict */}
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 p-6 md:p-8">
         <div className="flex flex-col items-center justify-center shrink-0">
-          <div className="relative w-48 h-48 flex items-center justify-center">
+          <div className="relative w-40 h-40 flex items-center justify-center">
             <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-foreground/10" />
               <circle
@@ -157,77 +188,113 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
             </svg>
             <div className="flex flex-col items-center">
               <span
-                className="text-5xl font-black"
+                className="text-4xl font-black"
                 style={{ color: riskColor, textShadow: `0 0 12px ${riskColor}` }}
                 data-testid="text-scam-percentage"
               >
                 {result.scamPercentage}%
               </span>
-              <span className="text-muted-foreground font-mono text-sm tracking-widest mt-1 uppercase">Risk Level</span>
+              <span className="text-muted-foreground font-mono text-xs tracking-widest mt-1 uppercase">Risk Level</span>
             </div>
           </div>
         </div>
 
-        <div className="flex-1 space-y-4">
-          <div className="space-y-1 text-center md:text-left">
+        <div className="flex-1 flex flex-col gap-2 text-center md:text-left justify-center">
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
             <h2
-              className="text-3xl font-bold uppercase tracking-wide"
+              className="text-2xl md:text-3xl font-bold uppercase tracking-wide"
               style={{ color: riskColor, textShadow: `0 0 10px ${riskColor}88` }}
               data-testid="text-verdict"
             >
               {result.verdict.replace(/_/g, " ")}
             </h2>
-            <p className="text-foreground/80 leading-relaxed font-medium" data-testid="text-explanation">
-              {result.explanation}
-            </p>
+            {result.threatType && (
+              <span
+                className="self-center md:self-auto px-3 py-1 rounded-full font-mono text-xs font-bold uppercase tracking-widest border"
+                style={{ color: riskColor, borderColor: `${riskColor}55`, backgroundColor: `${riskColor}15` }}
+                data-testid="text-threat-type"
+              >
+                {result.threatType}
+              </span>
+            )}
           </div>
-
-          {result.indicators.length > 0 && (
-            <div className="space-y-3 mt-6">
-              <h4 className="text-sm font-mono text-muted-foreground uppercase tracking-widest border-b border-border pb-2">
-                Analysis Indicators
-              </h4>
-              <ul className="space-y-2">
-                {result.indicators.map((indicator, index) => {
-                  let Icon = AlertCircle;
-                  let color = "#e0f8ff";
-                  let bg = "rgba(255,255,255,0.05)";
-                  let border = "rgba(255,255,255,0.1)";
-
-                  if (indicator.type === "red_flag") {
-                    Icon = ShieldAlert;
-                    color = "#f87171";
-                    bg = "rgba(239,68,68,0.08)";
-                    border = "rgba(239,68,68,0.2)";
-                  } else if (indicator.type === "yellow_flag") {
-                    Icon = AlertCircle;
-                    color = "#fbbf24";
-                    bg = "rgba(251,191,36,0.08)";
-                    border = "rgba(251,191,36,0.2)";
-                  } else {
-                    Icon = CheckCircle;
-                    color = "#34d399";
-                    bg = "rgba(52,211,153,0.08)";
-                    border = "rgba(52,211,153,0.2)";
-                  }
-
-                  return (
-                    <li
-                      key={index}
-                      className="flex items-start gap-3 p-3 rounded-lg border"
-                      style={{ backgroundColor: bg, borderColor: border }}
-                      data-testid={`item-indicator-${index}`}
-                    >
-                      <Icon className="w-5 h-5 shrink-0 mt-0.5" style={{ color }} />
-                      <span className="text-sm text-foreground/90">{indicator.description}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
+          <p className="text-foreground/70 text-sm leading-relaxed" data-testid="text-explanation">
+            {result.explanation}
+          </p>
         </div>
       </div>
+
+      {/* Divider */}
+      <div className="h-px mx-6" style={{ backgroundColor: `${riskColor}25` }} />
+
+      {/* Middle: structured human-friendly sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-6 md:p-8">
+        {result.whySuspicious && (
+          <InfoSection
+            label="Why It Looks Suspicious"
+            value={result.whySuspicious}
+            icon={AlertCircle}
+            accentColor={riskColor}
+          />
+        )}
+        {result.recommendedAction && (
+          <InfoSection
+            label="Recommended Action"
+            value={result.recommendedAction}
+            icon={ShieldCheck}
+            accentColor={result.scamPercentage <= 20 ? "#34d399" : riskColor}
+          />
+        )}
+      </div>
+
+      {/* Bottom: indicator pills */}
+      {result.indicators.length > 0 && (
+        <>
+          <div className="h-px mx-6" style={{ backgroundColor: `${riskColor}25` }} />
+          <div className="p-6 md:p-8 pt-4 space-y-3">
+            <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-widest">
+              Signal Breakdown
+            </h4>
+            <ul className="space-y-2">
+              {result.indicators.map((indicator, index) => {
+                let Icon = AlertCircle;
+                let color = "#e0f8ff";
+                let bg = "rgba(255,255,255,0.05)";
+                let border = "rgba(255,255,255,0.1)";
+
+                if (indicator.type === "red_flag") {
+                  Icon = ShieldAlert;
+                  color = "#f87171";
+                  bg = "rgba(239,68,68,0.08)";
+                  border = "rgba(239,68,68,0.2)";
+                } else if (indicator.type === "yellow_flag") {
+                  Icon = AlertCircle;
+                  color = "#fbbf24";
+                  bg = "rgba(251,191,36,0.08)";
+                  border = "rgba(251,191,36,0.2)";
+                } else {
+                  Icon = CheckCircle;
+                  color = "#34d399";
+                  bg = "rgba(52,211,153,0.08)";
+                  border = "rgba(52,211,153,0.2)";
+                }
+
+                return (
+                  <li
+                    key={index}
+                    className="flex items-start gap-3 p-3 rounded-lg border"
+                    style={{ backgroundColor: bg, borderColor: border }}
+                    data-testid={`item-indicator-${index}`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0 mt-0.5" style={{ color }} />
+                    <span className="text-sm text-foreground/85 leading-snug">{indicator.description}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </>
+      )}
     </div>
   );
 }

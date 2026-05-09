@@ -55,6 +55,12 @@ export interface ScamAnalysis {
   verdict: ScamAnalysisVerdict;
   /** Plain-language explanation of the analysis */
   explanation: string;
+  /** Short label for the type of threat (e.g. "Prize Scam", "Phishing Link", "Impersonation") */
+  threatType: string;
+  /** Simple everyday explanation of why this message is dangerous, written for a non-technical user */
+  whySuspicious: string;
+  /** Clear, actionable advice for what the user should do */
+  recommendedAction: string;
   /** Specific red flags or reassuring factors found */
   indicators: ScamIndicator[];
 }

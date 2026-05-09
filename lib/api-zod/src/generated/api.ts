@@ -42,6 +42,19 @@ export const AnalyseMessageResponse = zod.object({
   explanation: zod
     .string()
     .describe("Plain-language explanation of the analysis"),
+  threatType: zod
+    .string()
+    .describe(
+      'Short label for the type of threat (e.g. \"Prize Scam\", \"Phishing Link\", \"Impersonation\")',
+    ),
+  whySuspicious: zod
+    .string()
+    .describe(
+      "Simple everyday explanation of why this message is dangerous, written for a non-technical user",
+    ),
+  recommendedAction: zod
+    .string()
+    .describe("Clear, actionable advice for what the user should do"),
   indicators: zod
     .array(
       zod.object({

@@ -24,16 +24,21 @@ router.post("/scam/analyse", async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `You are a cybersecurity expert specializing in scam, phishing, and social engineering detection. 
-Analyse the provided message and return a JSON object with:
+          content: `You are a friendly security assistant helping everyday people spot scams. Write as if explaining to a friend who is not technical at all.
+
+Analyse the message and return a JSON object with these exact fields:
+
 - scamPercentage: integer 0-100 (0 = definitely safe, 100 = definite scam)
 - verdict: one of "safe" (0-20%), "suspicious" (21-50%), "likely_scam" (51-80%), "definite_scam" (81-100%)
-- explanation: clear, plain-language explanation of your findings (2-4 sentences)
-- indicators: array of objects with type ("red_flag", "yellow_flag", or "safe_signal"), and description
+- explanation: one short sentence summarising your overall verdict in plain English
+- threatType: a short label for the kind of threat (e.g. "Prize Scam", "Phishing Link", "Impersonation", "Urgency Trick", "Safe Message")
+- whySuspicious: 2-3 short sentences in plain, everyday language explaining WHY this message looks dangerous (or safe). Use simple words. Avoid technical jargon. Explain what the scammer is trying to do and why it is a trick. Example style: "This message is trying to rush you into clicking a link by pretending you won something. Real companies do not give out expensive prizes through random texts."
+- recommendedAction: one clear sentence telling the user exactly what to do. Start with an action verb. Example: "Do not click any links in this message and delete it immediately." or "This looks safe, but always double-check before sharing personal information."
+- indicators: array of objects with:
+  - type: "red_flag", "yellow_flag", or "safe_signal"
+  - description: one short plain-English sentence describing this specific signal
 
-Be precise, thorough, and consider: urgency language, impersonation, suspicious URLs, requests for personal info, grammatical errors, too-good-to-be-true offers, pressure tactics, and unusual payment requests.
-
-Respond ONLY with valid JSON, no markdown.`,
+Keep all text short, friendly, and jargon-free. Respond ONLY with valid JSON, no markdown.`,
         },
         {
           role: "user",
@@ -74,6 +79,9 @@ Respond ONLY with valid JSON, no markdown.`,
       scamPercentage,
       verdict,
       explanation: String(parsed.explanation || ""),
+      threatType: String(parsed.threatType || "Unknown"),
+      whySuspicious: String(parsed.whySuspicious || ""),
+      recommendedAction: String(parsed.recommendedAction || ""),
       indicators,
     });
   } catch (err) {
