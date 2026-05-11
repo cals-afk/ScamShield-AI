@@ -1,14 +1,42 @@
 import { useState, useRef, useEffect } from "react";
-import { useGenerateTheme } from "@workspace/api-client-react";
 import { useTheme } from "@/context/ThemeContext";
 import { Shield } from "lucide-react";
+import type { CharacterTheme } from "@workspace/api-client-react/src/generated/api.schemas";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+async function fetchTheme(character: string): Promise<CharacterTheme> {
+  const res = await fetch(`${BASE}/api/theme/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ character }),
+  });
+  if (!res.ok) throw new Error("Theme generation failed");
+  return res.json() as Promise<CharacterTheme>;
+}
+
+async function fetchHeroImage(character: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(`${BASE}/api/hero/image`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ character }),
+    });
+    if (!res.ok) return undefined;
+    const data = (await res.json()) as { imageUrl?: string };
+    return data.imageUrl;
+  } catch {
+    return undefined;
+  }
+}
 
 export default function Onboarding() {
   const [character, setCharacter] = useState("");
   const [showCursor, setShowCursor] = useState(true);
+  const [isPending, setIsPending] = useState(false);
+  const [isError, setIsError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { activateTheme } = useTheme();
-  const mutation = useGenerateTheme();
 
   useEffect(() => {
     const interval = setInterval(() => setShowCursor((c) => !c), 530);
@@ -20,19 +48,27 @@ export default function Onboarding() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const trimmed = character.trim();
-    if (!trimmed || mutation.isPending) return;
-    mutation.mutate(
-      { data: { character: trimmed } },
-      {
-        onSuccess: (theme) => activateTheme(trimmed, theme),
-      },
-    );
+    if (!trimmed || isPending) return;
+
+    setIsPending(true);
+    setIsError(false);
+
+    try {
+      const [theme, heroImageUrl] = await Promise.all([
+        fetchTheme(trimmed),
+        fetchHeroImage(trimmed),
+      ]);
+      activateTheme(trimmed, theme, heroImageUrl);
+    } catch {
+      setIsError(true);
+      setIsPending(false);
+    }
   };
 
   const handleKey = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit();
+    if (e.key === "Enter") void handleSubmit();
   };
 
   return (
@@ -84,7 +120,7 @@ export default function Onboarding() {
               value={character}
               onChange={(e) => setCharacter(e.target.value)}
               onKeyDown={handleKey}
-              disabled={mutation.isPending}
+              disabled={isPending}
               placeholder="e.g. Iron Man, Batman, Hermione..."
               className="relative w-full bg-card border border-border rounded-xl px-5 py-4 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-mono text-base text-center tracking-wide disabled:opacity-50"
             />
@@ -92,19 +128,19 @@ export default function Onboarding() {
 
           <button
             data-testid="button-activate"
-            onClick={handleSubmit}
-            disabled={!character.trim() || mutation.isPending}
+            onClick={() => void handleSubmit()}
+            disabled={!character.trim() || isPending}
             className="group relative w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl font-bold uppercase tracking-widest text-primary-foreground bg-primary border border-primary/40 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,212,255,0.35)] hover:shadow-[0_0_45px_rgba(0,212,255,0.7)] hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-            {mutation.isPending ? (
+            {isPending ? (
               <span className="relative flex items-center gap-2 font-mono text-sm">
                 <span className="inline-flex gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-current animate-bounce [animation-delay:0ms]" />
                   <span className="w-1.5 h-1.5 rounded-full bg-current animate-bounce [animation-delay:150ms]" />
                   <span className="w-1.5 h-1.5 rounded-full bg-current animate-bounce [animation-delay:300ms]" />
                 </span>
-                Calibrating interface...
+                Summoning your hero...
               </span>
             ) : (
               <span className="relative flex items-center gap-2">
@@ -115,7 +151,7 @@ export default function Onboarding() {
           </button>
         </div>
 
-        {mutation.isError && (
+        {isError && (
           <p className="text-sm font-mono text-destructive animate-in fade-in duration-300">
             Protocol failed. Please try again.
           </p>

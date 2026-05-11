@@ -1,19 +1,21 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import type { CharacterTheme } from "@workspace/api-client-react/src/generated/api.schemas";
 
-export type AppPhase = "onboarding" | "activating" | "ready";
+export type AppPhase = "onboarding" | "hero_reveal" | "activating" | "ready";
 
 interface ThemeContextValue {
   phase: AppPhase;
   theme: CharacterTheme | null;
   character: string;
-  activateTheme: (character: string, theme: CharacterTheme) => void;
+  heroImageUrl: string | null;
+  activateTheme: (character: string, theme: CharacterTheme, heroImageUrl?: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
   phase: "onboarding",
   theme: null,
   character: "",
+  heroImageUrl: null,
   activateTheme: () => {},
 });
 
@@ -63,21 +65,29 @@ function applyThemeToCss(theme: CharacterTheme) {
   root.style.setProperty("--theme-secondary-hex", theme.secondaryColor);
   root.style.setProperty("--theme-accent-hex", theme.accentColor);
   root.style.setProperty("--theme-bg-hex", theme.backgroundColor);
+
+  void secondary;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<AppPhase>("onboarding");
   const [theme, setTheme] = useState<CharacterTheme | null>(null);
   const [character, setCharacter] = useState("");
+  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
 
-  const activateTheme = useCallback((char: string, t: CharacterTheme) => {
+  const activateTheme = useCallback((char: string, t: CharacterTheme, imgUrl?: string) => {
     setCharacter(char);
     setTheme(t);
-    setPhase("activating");
+    setHeroImageUrl(imgUrl ?? null);
     applyThemeToCss(t);
+    setPhase(imgUrl ? "hero_reveal" : "activating");
   }, []);
 
   useEffect(() => {
+    if (phase === "hero_reveal") {
+      const timer = setTimeout(() => setPhase("activating"), 5800);
+      return () => clearTimeout(timer);
+    }
     if (phase === "activating") {
       const timer = setTimeout(() => setPhase("ready"), 3800);
       return () => clearTimeout(timer);
@@ -85,7 +95,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [phase]);
 
   return (
-    <ThemeContext.Provider value={{ phase, theme, character, activateTheme }}>
+    <ThemeContext.Provider value={{ phase, theme, character, heroImageUrl, activateTheme }}>
       {children}
     </ThemeContext.Provider>
   );

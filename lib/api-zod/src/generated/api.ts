@@ -115,3 +115,19 @@ export const GenerateThemeResponse = zod.object({
     .enum(["circle", "triangle", "diamond", "hex", "star"])
     .describe("Shape of background particles"),
 });
+
+/**
+ * Uses AI image generation to produce a dark dramatic portrait for the chosen character
+ * @summary Generate a cinematic hero portrait image
+ */
+
+export const GenerateHeroImageBody = zod.object({
+  character: zod
+    .string()
+    .min(1)
+    .describe("The name of the character or hero to inspire the theme"),
+});
+
+export const GenerateHeroImageResponse = zod.object({
+  imageUrl: zod.string().describe("URL of the generated hero portrait image"),
+});

@@ -14,6 +14,8 @@ tags:
     description: Scam detection operations
   - name: theme
     description: Theme generation operations
+  - name: hero
+    description: Hero image generation operations
 paths:
   /healthz:
     get:
@@ -78,6 +80,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CharacterTheme"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /hero/image:
+    post:
+      operationId: generateHeroImage
+      tags: [hero]
+      summary: Generate a cinematic hero portrait image
+      description: Uses AI image generation to produce a dark dramatic portrait for the chosen character
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CharacterInput"
+      responses:
+        "200":
+          description: Generated hero image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HeroImage"
         "400":
           description: Bad request
           content:
@@ -222,6 +255,14 @@ components:
           type: string
           enum: [circle, triangle, diamond, hex, star]
           description: Shape of background particles
+    HeroImage:
+      type: object
+      required:
+        - imageUrl
+      properties:
+        imageUrl:
+          type: string
+          description: URL of the generated hero portrait image
     ErrorResponse:
       type: object
       required:

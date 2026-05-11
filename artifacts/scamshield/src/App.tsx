@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
 import Activation from "@/pages/activation";
+import HeroReveal from "@/pages/hero-reveal";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import ParticleBackground from "@/components/ParticleBackground";
 
@@ -19,6 +20,7 @@ function AppShell() {
       <ParticleBackground theme={theme} active={phase === "activating"} />
 
       {phase === "onboarding" && <Onboarding />}
+      {phase === "hero_reveal" && <HeroReveal />}
       {phase === "activating" && <Activation />}
       {phase === "ready" && (
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>

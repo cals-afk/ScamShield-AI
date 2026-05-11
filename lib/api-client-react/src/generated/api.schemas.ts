@@ -136,6 +136,11 @@ export interface CharacterTheme {
   particleShape: CharacterThemeParticleShape;
 }
 
+export interface HeroImage {
+  /** URL of the generated hero portrait image */
+  imageUrl: string;
+}
+
 export interface ErrorResponse {
   error: string;
 }

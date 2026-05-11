@@ -21,6 +21,7 @@ import type {
   CharacterTheme,
   ErrorResponse,
   HealthStatus,
+  HeroImage,
   MessageInput,
   ScamAnalysis,
 } from "./api.schemas";
@@ -282,4 +283,91 @@ export const useGenerateTheme = <
   TContext
 > => {
   return useMutation(getGenerateThemeMutationOptions(options));
+};
+
+/**
+ * Uses AI image generation to produce a dark dramatic portrait for the chosen character
+ * @summary Generate a cinematic hero portrait image
+ */
+export const getGenerateHeroImageUrl = () => {
+  return `/api/hero/image`;
+};
+
+export const generateHeroImage = async (
+  characterInput: CharacterInput,
+  options?: RequestInit,
+): Promise<HeroImage> => {
+  return customFetch<HeroImage>(getGenerateHeroImageUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(characterInput),
+  });
+};
+
+export const getGenerateHeroImageMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateHeroImage>>,
+    TError,
+    { data: BodyType<CharacterInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof generateHeroImage>>,
+  TError,
+  { data: BodyType<CharacterInput> },
+  TContext
+> => {
+  const mutationKey = ["generateHeroImage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof generateHeroImage>>,
+    { data: BodyType<CharacterInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return generateHeroImage(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type GenerateHeroImageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof generateHeroImage>>
+>;
+export type GenerateHeroImageMutationBody = BodyType<CharacterInput>;
+export type GenerateHeroImageMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Generate a cinematic hero portrait image
+ */
+export const useGenerateHeroImage = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateHeroImage>>,
+    TError,
+    { data: BodyType<CharacterInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof generateHeroImage>>,
+  TError,
+  { data: BodyType<CharacterInput> },
+  TContext
+> => {
+  return useMutation(getGenerateHeroImageMutationOptions(options));
 };

@@ -11,6 +11,7 @@ export * from "./characterTheme";
 export * from "./characterThemeParticleShape";
 export * from "./errorResponse";
 export * from "./healthStatus";
+export * from "./heroImage";
 export * from "./messageInput";
 export * from "./messageInputInputType";
 export * from "./scamAnalysis";
