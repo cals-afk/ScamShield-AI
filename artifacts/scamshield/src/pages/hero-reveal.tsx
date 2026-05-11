@@ -5,18 +5,23 @@ export default function HeroReveal() {
   const { theme, character, heroImageUrl } = useTheme();
   const [exiting, setExiting] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const primary = theme?.primaryColor ?? "#00d4ff";
 
   useEffect(() => {
-    const exitTimer = setTimeout(() => setExiting(true), 4600);
-    return () => clearTimeout(exitTimer);
+    // Trigger exit fade slightly before ThemeContext transitions away
+    const exitTimer = setTimeout(() => setExiting(true), 4500);
+    // Show full-black overlay just before transition completes
+    const overlayTimer = setTimeout(() => setShowOverlay(true), 4900);
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(overlayTimer);
+    };
   }, []);
 
   return (
-    <div
-      className="fixed inset-0 z-50 overflow-hidden bg-black"
-    >
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black animate-hero-reveal-in">
       {/* Ken Burns hero image */}
       {heroImageUrl && (
         <div className="absolute inset-0 overflow-hidden">
@@ -25,22 +30,19 @@ export default function HeroReveal() {
             alt={character}
             onLoad={() => setImageLoaded(true)}
             className={[
-              "w-full h-full object-cover object-center",
-              "animate-ken-burns",
+              "w-full h-full object-cover object-center animate-ken-burns",
               imageLoaded
                 ? exiting
                   ? "animate-hero-reveal-out"
                   : "animate-hero-reveal-in"
                 : "opacity-0",
             ].join(" ")}
-            style={{
-              animationFillMode: "forwards",
-            }}
+            style={{ animationFillMode: "forwards" }}
           />
         </div>
       )}
 
-      {/* Deep vignette overlay — dark edges, clear center */}
+      {/* Deep vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -51,23 +53,17 @@ export default function HeroReveal() {
       {/* Bottom gradient fade */}
       <div
         className="absolute bottom-0 left-0 right-0 h-2/5 pointer-events-none"
-        style={{
-          background: "linear-gradient(to top, rgba(0,0,0,0.98) 0%, transparent 100%)",
-        }}
+        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.98) 0%, transparent 100%)" }}
       />
 
       {/* Top gradient fade */}
       <div
         className="absolute top-0 left-0 right-0 h-1/5 pointer-events-none"
-        style={{
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%)",
-        }}
+        style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%)" }}
       />
 
-      {/* Top-left status label */}
-      <div
-        className="absolute top-8 left-8 animate-hero-name-rise pointer-events-none"
-      >
+      {/* Top-left status label — slides in from left */}
+      <div className="absolute top-8 left-8 pointer-events-none animate-slide-left-in delay-800">
         <p
           className="font-mono text-xs tracking-[0.4em] uppercase"
           style={{ color: `${primary}88` }}
@@ -76,10 +72,8 @@ export default function HeroReveal() {
         </p>
       </div>
 
-      {/* Top-right corner accent */}
-      <div
-        className="absolute top-8 right-8 animate-hero-name-rise pointer-events-none flex items-center gap-2"
-      >
+      {/* Top-right corner — slides in from right */}
+      <div className="absolute top-8 right-8 pointer-events-none flex items-center gap-2 animate-slide-right-in delay-900">
         <div
           className="w-1.5 h-1.5 rounded-full animate-ping"
           style={{ backgroundColor: primary, animationDuration: "1.4s" }}
@@ -95,7 +89,6 @@ export default function HeroReveal() {
       {/* Bottom character name + tagline */}
       <div className="absolute bottom-0 left-0 right-0 px-8 pb-12 pointer-events-none">
         <div className="animate-hero-name-rise">
-          {/* Thin accent line */}
           <div
             className="w-16 h-px mb-5"
             style={{ backgroundColor: `${primary}88` }}
@@ -124,19 +117,17 @@ export default function HeroReveal() {
         </div>
       </div>
 
-      {/* Colour-tinted rim glow at bottom edge */}
+      {/* Rim glow at bottom edge */}
       <div
         className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-        style={{
-          background: `linear-gradient(to top, ${primary}18, transparent)`,
-        }}
+        style={{ background: `linear-gradient(to top, ${primary}18, transparent)` }}
       />
 
-      {/* Full-screen exit fade overlay */}
-      {exiting && (
+      {/* Exit: fade to black overlay */}
+      {showOverlay && (
         <div
           className="absolute inset-0 bg-black animate-hero-reveal-in pointer-events-none"
-          style={{ animationDuration: "1.2s" }}
+          style={{ animationDuration: "0.9s" }}
         />
       )}
     </div>

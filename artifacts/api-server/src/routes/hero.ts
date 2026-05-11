@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { generateImageBuffer } from "@workspace/integrations-openai-ai-server";
 import { GenerateHeroImageBody } from "@workspace/api-zod";
 
 const router = Router();
@@ -14,29 +15,29 @@ router.post("/hero/image", async (req, res) => {
   const { character } = parse.data;
 
   try {
-    // Step 1 — ask GPT to write a detailed cinematic visual description
-    // so DALL-E receives exact costume / material / lighting details
-    // instead of just a name that may hit copyright filters
+    // Step 1 — GPT writes a detailed visual description so gpt-image-1
+    // receives precise costume / lighting / mood details
     const descCompletion = await openai.chat.completions.create({
       model: "gpt-5-mini",
       messages: [
         {
           role: "system",
           content: `You are a senior concept artist who writes image-generation prompts for AAA game cinematics and superhero movie VFX.
-Given a character name, produce a precise, hyper-detailed visual description that can be fed to DALL-E 3.
+Given a character name, produce a precise, hyper-detailed visual description for gpt-image-1.
 
 Rules:
 - Do NOT include the character's real name or brand names.
-- Describe the exact costume in detail: dominant colours, material textures (matte, glossy, metallic, leather, nano-mesh, etc.), distinctive silhouette, logos/symbols on the suit, glowing elements.
+- Describe the exact costume: dominant colours, material textures (matte, glossy, metallic, leather, nano-mesh), distinctive silhouette, logos/symbols, glowing elements.
 - Describe the face/helmet/mask clearly.
-- Describe the lighting: one strong coloured rim light, deep fill shadow on the opposite side, thin separation light.
-- Pose: powerful, standing, slightly low-angle camera looking up (heroic framing), close-up from waist to top of head.
-- Background: near-black void with very subtle fog/haze and matching coloured atmospheric glow.
-- Output exactly 3–4 sentences. No line breaks, no bullets.`,
+- Lighting: one strong coloured rim light on one side, deep shadow on the other, subtle volumetric haze.
+- Framing: slightly low-angle, close-up from waist to top of head, heroic.
+- Background: near-black void, very subtle matching atmospheric glow.
+- Style: cinematic, photorealistic, ultra-detailed, game-render quality.
+- Output exactly 3 sentences. No line breaks, no bullets.`,
         },
         {
           role: "user",
-          content: `Write the cinematic DALL-E prompt description for: ${character}`,
+          content: `Write the image-generation description for: ${character}`,
         },
       ],
     });
@@ -44,22 +45,17 @@ Rules:
     const visualDescription =
       descCompletion.choices[0]?.message?.content?.trim() ?? character;
 
-    // Step 2 — generate image with HD quality using the rich visual description
-    const imageResponse = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: `Photorealistic cinematic superhero portrait. ${visualDescription} Shot on a RED cinema camera, anamorphic lens flare, f/1.4 bokeh, volumetric god rays, ultra-high detail, 8K textures, no watermarks, no text, dark moody atmosphere, PlayStation 5 / Unreal Engine 5 photorealistic quality.`,
-      n: 1,
-      size: "1024x1792",
-      quality: "hd",
-    });
+    // Step 2 — generate image with gpt-image-1 (the supported model)
+    const imageBuffer = await generateImageBuffer(
+      `Photorealistic cinematic superhero portrait. ${visualDescription} Dark moody atmosphere, anamorphic lens, film grain, no text, no watermarks, no logos.`,
+      "1024x1024",
+    );
 
-    const imageUrl = imageResponse.data?.[0]?.url;
-    if (!imageUrl) {
-      res.status(500).json({ error: "No image returned from AI" });
-      return;
-    }
+    // Return as a data URL so the browser can render it directly
+    const base64 = imageBuffer.toString("base64");
+    const dataUrl = `data:image/png;base64,${base64}`;
 
-    res.json({ imageUrl });
+    res.json({ imageUrl: dataUrl });
   } catch (err) {
     req.log.error({ err }, "Hero image generation failed");
     res.status(500).json({ error: "Hero image generation failed" });

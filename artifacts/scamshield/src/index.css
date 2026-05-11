@@ -148,6 +148,104 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
+/* ── Cinematic page & element transitions ── */
+
+@keyframes page-enter {
+  0%   { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  100% { opacity: 1; transform: translateY(0);    filter: blur(0px); }
+}
+
+@keyframes rise-in {
+  0%   { opacity: 0; transform: translateY(16px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes slide-left-in {
+  0%   { opacity: 0; transform: translateX(-20px); filter: blur(3px); }
+  100% { opacity: 1; transform: translateX(0);     filter: blur(0);   }
+}
+
+@keyframes slide-right-in {
+  0%   { opacity: 0; transform: translateX(20px); filter: blur(3px); }
+  100% { opacity: 1; transform: translateX(0);    filter: blur(0);   }
+}
+
+@keyframes result-card-in {
+  0%   { opacity: 0; transform: translateY(20px) scale(0.99); filter: blur(3px); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);   }
+}
+
+@keyframes page-exit {
+  0%   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);   }
+  100% { opacity: 0; transform: translateY(-10px) scale(0.98); filter: blur(6px); }
+}
+
+@keyframes glow-throb {
+  0%, 100% { box-shadow: 0 0 0px transparent; }
+  50%       { box-shadow: 0 0 18px var(--glow-color, #00d4ff44); }
+}
+
+@keyframes step-slide-in {
+  0%   { opacity: 0; transform: translateX(-14px); filter: blur(2px); }
+  100% { opacity: 1; transform: translateX(0);     filter: blur(0);   }
+}
+
+@keyframes counter-up {
+  0%   { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-page-exit {
+  animation: page-exit 0.5s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.animate-rise-in {
+  animation: rise-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-left-in {
+  animation: slide-left-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-right-in {
+  animation: slide-right-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-result-card-in {
+  animation: result-card-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-step-slide-in {
+  animation: step-slide-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-glow-throb {
+  animation: glow-throb 2s ease-in-out infinite;
+}
+
+/* Stagger delay helpers */
+.delay-50  { animation-delay: 50ms;  }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-250 { animation-delay: 250ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-350 { animation-delay: 350ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-450 { animation-delay: 450ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-800 { animation-delay: 800ms; }
+.delay-900 { animation-delay: 900ms; }
+.delay-1000{ animation-delay: 1000ms;}
+.delay-1100{ animation-delay: 1100ms;}
+.delay-1200{ animation-delay: 1200ms;}
+
 @keyframes sweep-flash {
   0% { transform: translateX(-100%); opacity: 0; }
   10% { opacity: 1; }

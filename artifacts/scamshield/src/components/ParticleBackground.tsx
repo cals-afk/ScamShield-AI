@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { CharacterTheme } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { CharacterTheme } from "@workspace/api-client-react";
 
 interface Particle {
   x: number;

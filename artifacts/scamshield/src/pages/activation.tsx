@@ -18,39 +18,18 @@ function HeroSilhouette({ color }: { color: string }) {
       className="w-full h-full"
       fill={color}
     >
-      {/* Cape — behind everything */}
       <path d="M60 110 Q10 180 0 420 Q55 370 110 400 Q165 370 220 420 Q210 180 160 110 Q130 130 110 130 Q90 130 60 110 Z" opacity="0.7" />
-
-      {/* Head */}
       <ellipse cx="110" cy="52" rx="34" ry="38" />
-
-      {/* Neck */}
       <rect x="97" y="84" width="26" height="18" rx="6" />
-
-      {/* Chest / torso */}
       <path d="M60 110 Q75 102 97 100 L113 100 Q135 102 160 110 L152 210 Q130 220 110 220 Q90 220 68 210 Z" />
-
-      {/* Left arm */}
-      <path d="M60 110 L22 185 Q18 200 28 205 L42 210 L72 145 Z" rx="8" />
-      {/* Left fist */}
+      <path d="M60 110 L22 185 Q18 200 28 205 L42 210 L72 145 Z" />
       <ellipse cx="25" cy="207" rx="14" ry="12" />
-
-      {/* Right arm */}
       <path d="M160 110 L198 185 Q202 200 192 205 L178 210 L148 145 Z" />
-      {/* Right fist */}
       <ellipse cx="195" cy="207" rx="14" ry="12" />
-
-      {/* Belt */}
       <rect x="72" y="207" width="76" height="14" rx="4" opacity="0.9" />
-
-      {/* Left leg */}
-      <path d="M72 218 L62 360 Q60 378 75 380 L95 380 L108 260 L108 218 Z" rx="6" />
-      {/* Left boot */}
+      <path d="M72 218 L62 360 Q60 378 75 380 L95 380 L108 260 L108 218 Z" />
       <path d="M62 362 Q58 395 72 400 L98 400 L98 375 Z" />
-
-      {/* Right leg */}
       <path d="M148 218 L158 360 Q160 378 145 380 L125 380 L112 260 L112 218 Z" />
-      {/* Right boot */}
       <path d="M158 362 Q162 395 148 400 L122 400 L122 375 Z" />
     </svg>
   );
@@ -61,6 +40,7 @@ export default function Activation() {
   const [step, setStep] = useState(0);
   const [sweeping, setSweeping] = useState(false);
   const [silhouetteVisible, setSilhouetteVisible] = useState(false);
+  const [exiting, setExiting] = useState(false);
 
   const primary = theme?.primaryColor ?? "#00d4ff";
 
@@ -69,17 +49,19 @@ export default function Activation() {
       setTimeout(() => setStep(i + 1), s.delay + 100);
     });
     setTimeout(() => setSweeping(true), 2800);
-    setTimeout(() => setSilhouetteVisible(true), 200);
+    setTimeout(() => setSilhouetteVisible(true), 300);
+    // Begin exit fade before ThemeContext unmounts (~3s mark)
+    setTimeout(() => setExiting(true), 3300);
   }, []);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden transition-all ${
+        exiting ? "animate-page-exit" : "animate-page-enter"
+      }`}
       style={{ backgroundColor: theme?.backgroundColor ?? "#0a0e1a" }}
     >
-      {/* ── Hero shadow / silhouette layer ── */}
-
-      {/* Character name watermark — giant rotated text */}
+      {/* ── Hero shadow layer ── */}
       {character && (
         <div
           className="animate-name-drift pointer-events-none select-none absolute"
@@ -100,7 +82,6 @@ export default function Activation() {
         </div>
       )}
 
-      {/* Hero silhouette glow bloom */}
       <div
         className="animate-hero-glow-pulse pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2"
         style={{
@@ -111,7 +92,6 @@ export default function Activation() {
         }}
       />
 
-      {/* Hero figure silhouette */}
       <div
         className="animate-hero-breathe pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2"
         style={{
@@ -119,13 +99,12 @@ export default function Activation() {
           height: "min(75vh, 520px)",
           opacity: silhouetteVisible ? undefined : 0,
           filter: `drop-shadow(0 0 24px ${primary}88) drop-shadow(0 0 60px ${primary}44)`,
-          transition: "opacity 1.2s ease",
+          transition: "opacity 1.4s ease",
         }}
       >
         <HeroSilhouette color={primary} />
       </div>
 
-      {/* Sweep flash on finish */}
       {sweeping && (
         <div
           className="absolute inset-0 pointer-events-none animate-sweep-flash"
@@ -135,7 +114,6 @@ export default function Activation() {
         />
       )}
 
-      {/* Ambient radial glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -145,7 +123,8 @@ export default function Activation() {
 
       {/* ── Main content ── */}
       <div className="relative z-10 flex flex-col items-center gap-8 px-6 text-center max-w-lg">
-        <div className="relative">
+        {/* Shield — slides in from top */}
+        <div className="relative animate-rise-in delay-0">
           <Shield
             className="w-20 h-20 animate-spin-slow"
             style={{
@@ -155,14 +134,12 @@ export default function Activation() {
           />
           <div
             className="absolute inset-0 rounded-full animate-ping"
-            style={{
-              background: `${primary}22`,
-              animationDuration: "1.5s",
-            }}
+            style={{ background: `${primary}22`, animationDuration: "1.5s" }}
           />
         </div>
 
-        <div className="space-y-2">
+        {/* Label + tagline */}
+        <div className="space-y-2 animate-rise-in delay-150">
           <h2
             className="text-3xl md:text-4xl font-extrabold tracking-widest font-sans"
             style={{
@@ -180,19 +157,25 @@ export default function Activation() {
           </p>
         </div>
 
+        {/* Boot steps — each slides in from left with staggered delay */}
         <div className="w-full max-w-xs space-y-2.5">
           {STEPS.map((s, i) => (
-            <div key={i} className="flex items-center gap-3 font-mono text-xs">
+            <div
+              key={i}
+              className="flex items-center gap-3 font-mono text-xs animate-step-slide-in"
+              style={{ animationDelay: `${i * 130 + 250}ms` }}
+            >
               <div
-                className="w-2 h-2 rounded-full shrink-0 transition-all duration-300"
+                className="w-2 h-2 rounded-full shrink-0 transition-all duration-500"
                 style={{
                   backgroundColor: step > i ? primary : "transparent",
                   border: `1px solid ${primary}66`,
                   boxShadow: step > i ? `0 0 8px ${primary}` : "none",
+                  transition: "background-color 0.4s ease, box-shadow 0.4s ease",
                 }}
               />
               <span
-                className="transition-all duration-300"
+                className="transition-all duration-500"
                 style={{
                   color: step > i ? primary : `${primary}44`,
                   textShadow: step > i ? `0 0 6px ${primary}88` : "none",
@@ -201,7 +184,10 @@ export default function Activation() {
                 {s.label.toUpperCase()}
               </span>
               {step > i && (
-                <span style={{ color: primary }} className="ml-auto">
+                <span
+                  style={{ color: primary }}
+                  className="ml-auto animate-rise-in"
+                >
                   OK
                 </span>
               )}
@@ -209,18 +195,28 @@ export default function Activation() {
           ))}
         </div>
 
+        {/* Progress bar */}
         <div
-          className="w-48 h-px overflow-hidden rounded-full"
+          className="w-48 h-px overflow-hidden rounded-full animate-rise-in delay-300"
           style={{ backgroundColor: `${primary}22` }}
         >
           <div
-            className="h-full transition-all duration-[400ms] ease-out rounded-full"
+            className="h-full rounded-full relative overflow-hidden"
             style={{
               width: `${Math.min(100, (step / STEPS.length) * 100)}%`,
               backgroundColor: primary,
               boxShadow: `0 0 10px ${primary}`,
+              transition: "width 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
-          />
+          >
+            {/* Shimmer on fill */}
+            <div
+              className="absolute inset-0 animate-shimmer-h"
+              style={{
+                background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)`,
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

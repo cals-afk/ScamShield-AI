@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAnalyseMessage } from "@workspace/api-client-react";
 import { AlertCircle, AlertTriangle, CheckCircle, CreditCard, ExternalLink, Gift, KeyRound, MessageSquare, Phone, Shield, ShieldAlert, ShieldCheck, Timer, UserX, Zap } from "lucide-react";
-import type { ScamAnalysis } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { ScamAnalysis } from "@workspace/api-client-react";
 import { useTheme } from "@/context/ThemeContext";
 
 type InputMode = "message" | "phone_number";
@@ -33,11 +33,11 @@ function ScanningAnimation({ primary }: { primary: string }) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-xl border animate-in fade-in slide-in-from-top-2 duration-500"
+      className="relative overflow-hidden rounded-xl border animate-rise-in"
       style={{ borderColor: `${primary}50`, backgroundColor: `${primary}06` }}
       data-testid="scanning-animation"
     >
-      {/* Sweeping vertical scan line */}
+      {/* Sweeping scan line */}
       <div
         className="absolute inset-x-0 h-px animate-scan-sweep pointer-events-none z-10"
         style={{
@@ -47,7 +47,6 @@ function ScanningAnimation({ primary }: { primary: string }) {
       />
 
       <div className="relative px-5 py-4 flex flex-col gap-3">
-        {/* Header */}
         <div className="flex items-center gap-2.5">
           <div className="flex gap-1.5">
             {[0, 1, 2].map((i) => (
@@ -72,15 +71,14 @@ function ScanningAnimation({ primary }: { primary: string }) {
           </span>
         </div>
 
-        {/* Cycling scan message */}
         <div className="h-5 overflow-hidden">
           <span
             className="font-mono text-sm block"
             style={{
               color: primary,
               opacity: fading ? 0 : 1,
-              transform: fading ? "translateY(-5px)" : "translateY(0)",
-              transition: "opacity 0.3s ease, transform 0.3s ease",
+              transform: fading ? "translateY(-6px)" : "translateY(0)",
+              transition: "opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
               textShadow: `0 0 12px ${primary}77`,
             }}
           >
@@ -88,7 +86,6 @@ function ScanningAnimation({ primary }: { primary: string }) {
           </span>
         </div>
 
-        {/* Shimmer progress bar */}
         <div
           className="relative h-px rounded-full overflow-hidden"
           style={{ backgroundColor: `${primary}20` }}
@@ -114,7 +111,6 @@ export default function Home() {
   const { theme, character } = useTheme();
 
   const primary = theme?.primaryColor ?? "#00d4ff";
-
   const activeInput = inputMode === "message" ? message : phoneNumber;
 
   const handleAnalyse = () => {
@@ -130,20 +126,21 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-background text-foreground relative overflow-hidden flex flex-col items-center py-12 px-4 sm:px-6 animate-in fade-in duration-700">
+    <div className="min-h-[100dvh] w-full bg-background text-foreground relative overflow-hidden flex flex-col items-center py-12 px-4 sm:px-6 animate-page-enter">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
       <div className="z-10 w-full max-w-3xl flex flex-col gap-8">
         {theme && (
           <div
-            className="text-center font-mono text-xs tracking-[0.4em] uppercase animate-in fade-in duration-1000"
+            className="text-center font-mono text-xs tracking-[0.4em] uppercase animate-slide-left-in delay-50"
             style={{ color: `${primary}88` }}
           >
             {theme.label} · ACTIVE
           </div>
         )}
 
-        <header className="text-center space-y-4">
+        {/* Header */}
+        <header className="text-center space-y-4 animate-rise-in delay-100">
           <h1
             className="neon-title text-5xl md:text-6xl font-extrabold tracking-tight flex items-center justify-center gap-4"
             style={theme ? { color: primary, textShadow: `0 0 10px ${primary}, 0 0 30px ${primary}99, 0 0 60px ${primary}55` } : {}}
@@ -167,7 +164,7 @@ export default function Home() {
         <section className="flex flex-col gap-5">
           {/* Mode tabs */}
           <div
-            className="flex rounded-xl border p-1 gap-1"
+            className="flex rounded-xl border p-1 gap-1 animate-rise-in delay-200"
             style={{ borderColor: `${primary}30`, backgroundColor: `${primary}08` }}
           >
             {(["message", "phone_number"] as InputMode[]).map((mode) => {
@@ -179,7 +176,7 @@ export default function Home() {
                   key={mode}
                   data-testid={`tab-${mode}`}
                   onClick={() => handleModeSwitch(mode)}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-mono text-sm font-bold uppercase tracking-wider transition-all duration-300"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-mono text-sm font-bold uppercase tracking-wider transition-all duration-400"
                   style={
                     isActive
                       ? {
@@ -187,7 +184,9 @@ export default function Home() {
                           color: theme?.backgroundColor ?? "#0a0e1a",
                           boxShadow: `0 0 16px ${primary}66`,
                         }
-                      : { color: `${primary}88` }
+                      : {
+                          color: `${primary}88`,
+                        }
                   }
                 >
                   <Icon className="w-4 h-4" />
@@ -198,16 +197,16 @@ export default function Home() {
           </div>
 
           {/* Input area */}
-          <div className="relative group">
+          <div className="relative group animate-rise-in delay-300">
             <div
-              className="absolute -inset-0.5 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"
+              className="absolute -inset-0.5 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition-all duration-600"
               style={{ background: `${primary}33` }}
             />
             {inputMode === "message" ? (
               <div className="relative">
                 <textarea
                   data-testid="input-message"
-                  className="relative w-full h-48 md:h-56 bg-card border border-border rounded-xl p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-none font-mono text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
+                  className="relative w-full h-48 md:h-56 bg-card border border-border rounded-xl p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-400 resize-none font-mono text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
                   style={{ "--tw-ring-color": primary } as React.CSSProperties}
                   placeholder="PASTE SUSPICIOUS MESSAGE HERE..."
                   value={message}
@@ -222,16 +221,20 @@ export default function Home() {
                         boxShadow: `0 0 14px 3px ${primary}66`,
                       }}
                     />
-                    <div className="absolute inset-0 rounded-xl" style={{ border: `1px solid ${primary}55`, boxShadow: `inset 0 0 30px ${primary}0d` }} />
+                    <div
+                      className="absolute inset-0 rounded-xl transition-all duration-400"
+                      style={{ border: `1px solid ${primary}55`, boxShadow: `inset 0 0 30px ${primary}0d` }}
+                    />
                   </div>
                 )}
               </div>
             ) : (
               <div className="relative">
-                <div className="relative w-full bg-card border border-border rounded-xl px-5 py-5 flex items-center gap-3 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:border-transparent transition-all"
+                <div
+                  className="relative w-full bg-card border border-border rounded-xl px-5 py-5 flex items-center gap-3 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:border-transparent transition-all duration-400"
                   style={{ "--tw-ring-color": primary } as React.CSSProperties}
                 >
-                  <Phone className="w-5 h-5 shrink-0" style={{ color: `${primary}88` }} />
+                  <Phone className="w-5 h-5 shrink-0 transition-colors duration-300" style={{ color: `${primary}88` }} />
                   <input
                     data-testid="input-phone"
                     type="tel"
@@ -258,26 +261,28 @@ export default function Home() {
             )}
           </div>
 
+          {/* Analyse button */}
           <button
             data-testid="button-analyse"
             onClick={handleAnalyse}
             disabled={analyseMessageMutation.isPending || !activeInput.trim()}
-            className="group relative w-full flex justify-center py-4 px-4 border text-lg font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+            className="group relative w-full flex justify-center py-4 px-4 border text-lg font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 animate-rise-in delay-400"
             style={{
               backgroundColor: primary,
               borderColor: `${primary}66`,
               color: theme?.backgroundColor ?? "#0a0e1a",
               boxShadow: `0 0 20px ${primary}55`,
+              transition: "box-shadow 0.4s ease, transform 0.2s ease, opacity 0.3s ease",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 45px ${primary}bb, 0 0 80px ${primary}44`;
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 50px ${primary}bb, 0 0 80px ${primary}44`;
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 20px ${primary}55`;
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-            <span className="relative flex items-center gap-2 transition-transform duration-300 group-hover:gap-3">
+            <span className="relative flex items-center gap-2 transition-all duration-300 group-hover:gap-3">
               {analyseMessageMutation.isPending ? (
                 <>
                   <Zap className="animate-pulse" />
@@ -298,7 +303,7 @@ export default function Home() {
         )}
 
         {analyseMessageMutation.isError && (
-          <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/50 text-destructive flex items-start gap-3">
+          <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/50 text-destructive flex items-start gap-3 animate-rise-in">
             <ShieldAlert className="shrink-0 mt-0.5" />
             <div>
               <h3 className="font-bold">Analysis Failed</h3>
@@ -328,7 +333,7 @@ function InfoSection({
 }) {
   return (
     <div
-      className="rounded-xl border p-4 flex flex-col gap-2"
+      className="rounded-xl border p-4 flex flex-col gap-2 transition-all duration-300 hover:scale-[1.01]"
       style={{ borderColor: `${accentColor}30`, backgroundColor: `${accentColor}08` }}
     >
       <div className="flex items-center gap-2">
@@ -357,7 +362,7 @@ const TECHNIQUE_META: Record<string, { label: string; icon: React.ElementType; c
   too_good_to_be_true:   { label: "Too Good to Be True",     icon: AlertCircle,   color: "#f97316", bg: "rgba(249,115,22,0.08)",  border: "rgba(249,115,22,0.25)" },
 };
 
-function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePrimary: string }) {
+function ResultSection({ result, themePrimary: _p }: { result: ScamAnalysis; themePrimary: string }) {
   const getRiskColor = (percentage: number) => {
     if (percentage <= 20) return "#34d399";
     if (percentage <= 50) return "#fbbf24";
@@ -374,12 +379,12 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
 
   return (
     <div
-      className="mt-4 rounded-2xl border backdrop-blur-sm animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out flex flex-col gap-0 overflow-hidden"
+      className="mt-4 rounded-2xl border backdrop-blur-sm flex flex-col gap-0 overflow-hidden"
       style={getRiskBg(result.scamPercentage)}
       data-testid="section-result"
     >
-      {/* Top: gauge + verdict */}
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 p-6 md:p-8">
+      {/* Top: gauge + verdict — first to appear */}
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 p-6 md:p-8 animate-result-card-in delay-0">
         <div className="flex flex-col items-center justify-center shrink-0">
           <div className="relative w-40 h-40 flex items-center justify-center">
             <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
@@ -389,8 +394,11 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
                 stroke={riskColor}
                 strokeWidth="8"
                 strokeDasharray={`${result.scamPercentage * 2.51} 251.2`}
-                className="transition-all duration-1000 ease-out"
-                style={{ strokeLinecap: "round", filter: `drop-shadow(0 0 6px ${riskColor})` }}
+                style={{
+                  strokeLinecap: "round",
+                  filter: `drop-shadow(0 0 6px ${riskColor})`,
+                  transition: "stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                }}
               />
             </svg>
             <div className="flex flex-col items-center">
@@ -431,11 +439,10 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
         </div>
       </div>
 
-      {/* Divider */}
       <div className="h-px mx-6" style={{ backgroundColor: `${riskColor}25` }} />
 
-      {/* Middle: structured human-friendly sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-6 md:p-8">
+      {/* Info sections — stagger after gauge */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-6 md:p-8 animate-result-card-in delay-150">
         {result.whySuspicious && (
           <InfoSection
             label={result.scamPercentage <= 20 ? "Why It Looks Safe" : "Why It Looks Suspicious"}
@@ -454,16 +461,16 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
         )}
       </div>
 
-      {/* Why this was flagged: technique tags */}
+      {/* Technique tags */}
       {result.flaggedTechniques && result.flaggedTechniques.length > 0 && (
         <>
           <div className="h-px mx-6" style={{ backgroundColor: `${riskColor}25` }} />
-          <div className="p-6 md:p-8 pt-5 space-y-3">
+          <div className="p-6 md:p-8 pt-5 space-y-3 animate-result-card-in delay-300">
             <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-widest">
               Why This Was Flagged
             </h4>
             <div className="flex flex-wrap gap-2">
-              {result.flaggedTechniques.map((technique) => {
+              {result.flaggedTechniques.map((technique: string, ti: number) => {
                 const meta = TECHNIQUE_META[technique];
                 if (!meta) return null;
                 const Icon = meta.icon;
@@ -471,8 +478,13 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
                   <span
                     key={technique}
                     data-testid={`tag-technique-${technique}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold"
-                    style={{ color: meta.color, backgroundColor: meta.bg, borderColor: meta.border }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold animate-rise-in"
+                    style={{
+                      color: meta.color,
+                      backgroundColor: meta.bg,
+                      borderColor: meta.border,
+                      animationDelay: `${300 + ti * 60}ms`,
+                    }}
                   >
                     <Icon className="w-3.5 h-3.5 shrink-0" />
                     {meta.label}
@@ -484,16 +496,16 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
         </>
       )}
 
-      {/* Bottom: indicator pills */}
+      {/* Signal breakdown */}
       {result.indicators.length > 0 && (
         <>
           <div className="h-px mx-6" style={{ backgroundColor: `${riskColor}25` }} />
-          <div className="p-6 md:p-8 pt-4 space-y-3">
+          <div className="p-6 md:p-8 pt-4 space-y-3 animate-result-card-in delay-450">
             <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-widest">
               Signal Breakdown
             </h4>
             <ul className="space-y-2">
-              {result.indicators.map((indicator, index) => {
+              {result.indicators.map((indicator: ScamAnalysis["indicators"][number], index: number) => {
                 let Icon = AlertCircle;
                 let color = "#e0f8ff";
                 let bg = "rgba(255,255,255,0.05)";
@@ -519,12 +531,16 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
                 return (
                   <li
                     key={index}
-                    className="flex items-start gap-3 p-3 rounded-lg border"
-                    style={{ backgroundColor: bg, borderColor: border }}
+                    className="flex items-start gap-3 p-3 rounded-lg border transition-all duration-300 hover:scale-[1.005] animate-rise-in"
+                    style={{
+                      backgroundColor: bg,
+                      borderColor: border,
+                      animationDelay: `${450 + Math.min(index * 55, 350)}ms`,
+                    }}
                     data-testid={`item-indicator-${index}`}
                   >
                     <Icon className="w-4 h-4 shrink-0 mt-0.5" style={{ color }} />
-                    <span className="text-sm text-foreground/85 leading-snug">{indicator.description}</span>
+                    <span className="text-sm text-foreground/80">{indicator.description}</span>
                   </li>
                 );
               })}

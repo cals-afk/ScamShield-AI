@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import type { CharacterTheme } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { CharacterTheme } from "@workspace/api-client-react";
 
 export type AppPhase = "onboarding" | "hero_reveal" | "activating" | "ready";
 
@@ -92,6 +92,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const timer = setTimeout(() => setPhase("ready"), 3800);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [phase]);
 
   return (
