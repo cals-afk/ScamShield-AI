@@ -1,10 +1,110 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAnalyseMessage } from "@workspace/api-client-react";
 import { AlertCircle, AlertTriangle, CheckCircle, CreditCard, ExternalLink, Gift, KeyRound, MessageSquare, Phone, Shield, ShieldAlert, ShieldCheck, Timer, UserX, Zap } from "lucide-react";
 import type { ScamAnalysis } from "@workspace/api-client-react/src/generated/api.schemas";
 import { useTheme } from "@/context/ThemeContext";
 
 type InputMode = "message" | "phone_number";
+
+const SCAN_MESSAGES = [
+  "Scanning for phishing indicators...",
+  "Analyzing suspicious patterns...",
+  "Detecting social engineering tactics...",
+  "Cross-referencing threat signatures...",
+  "Evaluating scam behavior markers...",
+  "Checking for urgency manipulation...",
+  "Assessing risk level...",
+];
+
+function ScanningAnimation({ primary }: { primary: string }) {
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFading(true);
+      setTimeout(() => {
+        setMsgIndex((i) => (i + 1) % SCAN_MESSAGES.length);
+        setFading(false);
+      }, 320);
+    }, 1900);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      className="relative overflow-hidden rounded-xl border animate-in fade-in slide-in-from-top-2 duration-500"
+      style={{ borderColor: `${primary}50`, backgroundColor: `${primary}06` }}
+      data-testid="scanning-animation"
+    >
+      {/* Sweeping vertical scan line */}
+      <div
+        className="absolute inset-x-0 h-px animate-scan-sweep pointer-events-none z-10"
+        style={{
+          background: `linear-gradient(90deg, transparent 0%, ${primary} 40%, ${primary} 60%, transparent 100%)`,
+          boxShadow: `0 0 10px 2px ${primary}88`,
+        }}
+      />
+
+      <div className="relative px-5 py-4 flex flex-col gap-3">
+        {/* Header */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ backgroundColor: primary, animationDelay: `${i * 220}ms` }}
+              />
+            ))}
+          </div>
+          <span
+            className="font-mono text-xs uppercase tracking-[0.25em] animate-flicker-dim"
+            style={{ color: `${primary}99` }}
+          >
+            AI Analysis In Progress
+          </span>
+          <span
+            className="ml-auto font-mono text-xs animate-terminal-blink"
+            style={{ color: `${primary}66` }}
+          >
+            █
+          </span>
+        </div>
+
+        {/* Cycling scan message */}
+        <div className="h-5 overflow-hidden">
+          <span
+            className="font-mono text-sm block"
+            style={{
+              color: primary,
+              opacity: fading ? 0 : 1,
+              transform: fading ? "translateY(-5px)" : "translateY(0)",
+              transition: "opacity 0.3s ease, transform 0.3s ease",
+              textShadow: `0 0 12px ${primary}77`,
+            }}
+          >
+            {SCAN_MESSAGES[msgIndex]}
+          </span>
+        </div>
+
+        {/* Shimmer progress bar */}
+        <div
+          className="relative h-px rounded-full overflow-hidden"
+          style={{ backgroundColor: `${primary}20` }}
+        >
+          <div
+            className="absolute inset-y-0 w-1/4 animate-shimmer-h"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${primary}, ${primary}cc, transparent)`,
+              boxShadow: `0 0 6px ${primary}`,
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [inputMode, setInputMode] = useState<InputMode>("message");
@@ -104,28 +204,56 @@ export default function Home() {
               style={{ background: `${primary}33` }}
             />
             {inputMode === "message" ? (
-              <textarea
-                data-testid="input-message"
-                className="relative w-full h-48 md:h-56 bg-card border border-border rounded-xl p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-none font-mono text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
-                style={{ "--tw-ring-color": primary } as React.CSSProperties}
-                placeholder="PASTE SUSPICIOUS MESSAGE HERE..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-            ) : (
-              <div className="relative w-full bg-card border border-border rounded-xl px-5 py-5 flex items-center gap-3 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:border-transparent transition-all"
-                style={{ "--tw-ring-color": primary } as React.CSSProperties}
-              >
-                <Phone className="w-5 h-5 shrink-0" style={{ color: `${primary}88` }} />
-                <input
-                  data-testid="input-phone"
-                  type="tel"
-                  className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none font-mono text-base md:text-lg tracking-widest"
-                  placeholder="+1 800 555 0199"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAnalyse()}
+              <div className="relative">
+                <textarea
+                  data-testid="input-message"
+                  className="relative w-full h-48 md:h-56 bg-card border border-border rounded-xl p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-none font-mono text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
+                  style={{ "--tw-ring-color": primary } as React.CSSProperties}
+                  placeholder="PASTE SUSPICIOUS MESSAGE HERE..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
+                {analyseMessageMutation.isPending && (
+                  <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
+                    <div
+                      className="absolute inset-x-0 h-0.5 animate-scan-sweep"
+                      style={{
+                        background: `linear-gradient(90deg, transparent 0%, ${primary}cc 35%, ${primary} 50%, ${primary}cc 65%, transparent 100%)`,
+                        boxShadow: `0 0 14px 3px ${primary}66`,
+                      }}
+                    />
+                    <div className="absolute inset-0 rounded-xl" style={{ border: `1px solid ${primary}55`, boxShadow: `inset 0 0 30px ${primary}0d` }} />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="relative w-full bg-card border border-border rounded-xl px-5 py-5 flex items-center gap-3 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:border-transparent transition-all"
+                  style={{ "--tw-ring-color": primary } as React.CSSProperties}
+                >
+                  <Phone className="w-5 h-5 shrink-0" style={{ color: `${primary}88` }} />
+                  <input
+                    data-testid="input-phone"
+                    type="tel"
+                    className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none font-mono text-base md:text-lg tracking-widest"
+                    placeholder="+1 800 555 0199"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAnalyse()}
+                  />
+                </div>
+                {analyseMessageMutation.isPending && (
+                  <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
+                    <div
+                      className="absolute inset-x-0 h-0.5 animate-scan-sweep"
+                      style={{
+                        background: `linear-gradient(90deg, transparent 0%, ${primary}cc 35%, ${primary} 50%, ${primary}cc 65%, transparent 100%)`,
+                        boxShadow: `0 0 14px 3px ${primary}66`,
+                      }}
+                    />
+                    <div className="absolute inset-0 rounded-xl" style={{ border: `1px solid ${primary}55` }} />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -164,6 +292,10 @@ export default function Home() {
             </span>
           </button>
         </section>
+
+        {analyseMessageMutation.isPending && (
+          <ScanningAnimation primary={primary} />
+        )}
 
         {analyseMessageMutation.isError && (
           <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/50 text-destructive flex items-start gap-3">
