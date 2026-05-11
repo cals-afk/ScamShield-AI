@@ -14,15 +14,46 @@ router.post("/hero/image", async (req, res) => {
   const { character } = parse.data;
 
   try {
-    const response = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: `Cinematic dark dramatic portrait of ${character}, photorealistic game render quality, extreme rim lighting on one side, volumetric fog, near-black background, heroic standing pose, ultra detailed costume, dramatic shadows, moody atmospheric lighting, close up chest and face framing, dark cinematic superhero aesthetic`,
-      n: 1,
-      size: "1024x1792",
-      quality: "standard",
+    // Step 1 — ask GPT to write a detailed cinematic visual description
+    // so DALL-E receives exact costume / material / lighting details
+    // instead of just a name that may hit copyright filters
+    const descCompletion = await openai.chat.completions.create({
+      model: "gpt-5-mini",
+      messages: [
+        {
+          role: "system",
+          content: `You are a senior concept artist who writes image-generation prompts for AAA game cinematics and superhero movie VFX.
+Given a character name, produce a precise, hyper-detailed visual description that can be fed to DALL-E 3.
+
+Rules:
+- Do NOT include the character's real name or brand names.
+- Describe the exact costume in detail: dominant colours, material textures (matte, glossy, metallic, leather, nano-mesh, etc.), distinctive silhouette, logos/symbols on the suit, glowing elements.
+- Describe the face/helmet/mask clearly.
+- Describe the lighting: one strong coloured rim light, deep fill shadow on the opposite side, thin separation light.
+- Pose: powerful, standing, slightly low-angle camera looking up (heroic framing), close-up from waist to top of head.
+- Background: near-black void with very subtle fog/haze and matching coloured atmospheric glow.
+- Output exactly 3–4 sentences. No line breaks, no bullets.`,
+        },
+        {
+          role: "user",
+          content: `Write the cinematic DALL-E prompt description for: ${character}`,
+        },
+      ],
     });
 
-    const imageUrl = response.data?.[0]?.url;
+    const visualDescription =
+      descCompletion.choices[0]?.message?.content?.trim() ?? character;
+
+    // Step 2 — generate image with HD quality using the rich visual description
+    const imageResponse = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: `Photorealistic cinematic superhero portrait. ${visualDescription} Shot on a RED cinema camera, anamorphic lens flare, f/1.4 bokeh, volumetric god rays, ultra-high detail, 8K textures, no watermarks, no text, dark moody atmosphere, PlayStation 5 / Unreal Engine 5 photorealistic quality.`,
+      n: 1,
+      size: "1024x1792",
+      quality: "hd",
+    });
+
+    const imageUrl = imageResponse.data?.[0]?.url;
     if (!imageUrl) {
       res.status(500).json({ error: "No image returned from AI" });
       return;
