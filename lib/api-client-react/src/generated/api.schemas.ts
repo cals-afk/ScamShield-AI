@@ -43,6 +43,21 @@ export const ScamAnalysisVerdict = {
   definite_scam: "definite_scam",
 } as const;
 
+export type ScamAnalysisFlaggedTechniquesItem =
+  (typeof ScamAnalysisFlaggedTechniquesItem)[keyof typeof ScamAnalysisFlaggedTechniquesItem];
+
+export const ScamAnalysisFlaggedTechniquesItem = {
+  urgency: "urgency",
+  suspicious_link: "suspicious_link",
+  reward_bait: "reward_bait",
+  phishing_language: "phishing_language",
+  otp_request: "otp_request",
+  impersonation: "impersonation",
+  personal_info_request: "personal_info_request",
+  fear_tactics: "fear_tactics",
+  too_good_to_be_true: "too_good_to_be_true",
+} as const;
+
 export type ScamIndicatorType =
   (typeof ScamIndicatorType)[keyof typeof ScamIndicatorType];
 
@@ -74,6 +89,8 @@ export interface ScamAnalysis {
   whySuspicious: string;
   /** Clear, actionable advice for what the user should do */
   recommendedAction: string;
+  /** Specific scam techniques detected in the message */
+  flaggedTechniques?: ScamAnalysisFlaggedTechniquesItem[];
   /** Specific red flags or reassuring factors found */
   indicators: ScamIndicator[];
 }

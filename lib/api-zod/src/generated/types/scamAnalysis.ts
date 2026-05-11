@@ -5,6 +5,7 @@
  * ScamShield AI API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ScamAnalysisFlaggedTechniquesItem } from "./scamAnalysisFlaggedTechniquesItem";
 import type { ScamAnalysisVerdict } from "./scamAnalysisVerdict";
 import type { ScamIndicator } from "./scamIndicator";
 
@@ -25,6 +26,8 @@ export interface ScamAnalysis {
   whySuspicious: string;
   /** Clear, actionable advice for what the user should do */
   recommendedAction: string;
+  /** Specific scam techniques detected in the message */
+  flaggedTechniques?: ScamAnalysisFlaggedTechniquesItem[];
   /** Specific red flags or reassuring factors found */
   indicators: ScamIndicator[];
 }

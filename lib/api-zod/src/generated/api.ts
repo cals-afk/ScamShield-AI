@@ -59,6 +59,22 @@ export const AnalyseMessageResponse = zod.object({
   recommendedAction: zod
     .string()
     .describe("Clear, actionable advice for what the user should do"),
+  flaggedTechniques: zod
+    .array(
+      zod.enum([
+        "urgency",
+        "suspicious_link",
+        "reward_bait",
+        "phishing_language",
+        "otp_request",
+        "impersonation",
+        "personal_info_request",
+        "fear_tactics",
+        "too_good_to_be_true",
+      ]),
+    )
+    .optional()
+    .describe("Specific scam techniques detected in the message"),
   indicators: zod
     .array(
       zod.object({

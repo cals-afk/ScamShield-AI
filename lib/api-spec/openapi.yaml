@@ -144,6 +144,21 @@ components:
         recommendedAction:
           type: string
           description: Clear, actionable advice for what the user should do
+        flaggedTechniques:
+          type: array
+          items:
+            type: string
+            enum:
+              - urgency
+              - suspicious_link
+              - reward_bait
+              - phishing_language
+              - otp_request
+              - impersonation
+              - personal_info_request
+              - fear_tactics
+              - too_good_to_be_true
+          description: Specific scam techniques detected in the message
         indicators:
           type: array
           items:

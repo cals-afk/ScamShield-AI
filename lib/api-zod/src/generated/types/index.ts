@@ -14,6 +14,7 @@ export * from "./healthStatus";
 export * from "./messageInput";
 export * from "./messageInputInputType";
 export * from "./scamAnalysis";
+export * from "./scamAnalysisFlaggedTechniquesItem";
 export * from "./scamAnalysisVerdict";
 export * from "./scamIndicator";
 export * from "./scamIndicatorType";

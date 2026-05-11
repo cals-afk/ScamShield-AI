@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAnalyseMessage } from "@workspace/api-client-react";
-import { AlertCircle, CheckCircle, MessageSquare, Phone, Shield, ShieldAlert, ShieldCheck, Zap } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle, CreditCard, ExternalLink, Gift, KeyRound, MessageSquare, Phone, Shield, ShieldAlert, ShieldCheck, Timer, UserX, Zap } from "lucide-react";
 import type { ScamAnalysis } from "@workspace/api-client-react/src/generated/api.schemas";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -213,6 +213,18 @@ function InfoSection({
   );
 }
 
+const TECHNIQUE_META: Record<string, { label: string; icon: React.ElementType; color: string; bg: string; border: string }> = {
+  urgency:               { label: "Urgency Tactics",         icon: Timer,         color: "#f97316", bg: "rgba(249,115,22,0.08)",  border: "rgba(249,115,22,0.25)" },
+  suspicious_link:       { label: "Suspicious Link",         icon: ExternalLink,  color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "rgba(239,68,68,0.25)" },
+  reward_bait:           { label: "Reward Bait",             icon: Gift,          color: "#f97316", bg: "rgba(249,115,22,0.08)",  border: "rgba(249,115,22,0.25)" },
+  phishing_language:     { label: "Phishing Language",       icon: AlertTriangle, color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "rgba(239,68,68,0.25)" },
+  otp_request:           { label: "OTP / Code Request",      icon: KeyRound,      color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "rgba(239,68,68,0.25)" },
+  impersonation:         { label: "Impersonation",           icon: UserX,         color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "rgba(239,68,68,0.25)" },
+  personal_info_request: { label: "Personal Info Request",   icon: CreditCard,    color: "#f97316", bg: "rgba(249,115,22,0.08)",  border: "rgba(249,115,22,0.25)" },
+  fear_tactics:          { label: "Fear Tactics",            icon: ShieldAlert,   color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "rgba(239,68,68,0.25)" },
+  too_good_to_be_true:   { label: "Too Good to Be True",     icon: AlertCircle,   color: "#f97316", bg: "rgba(249,115,22,0.08)",  border: "rgba(249,115,22,0.25)" },
+};
+
 function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePrimary: string }) {
   const getRiskColor = (percentage: number) => {
     if (percentage <= 20) return "#34d399";
@@ -309,6 +321,36 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
           />
         )}
       </div>
+
+      {/* Why this was flagged: technique tags */}
+      {result.flaggedTechniques && result.flaggedTechniques.length > 0 && (
+        <>
+          <div className="h-px mx-6" style={{ backgroundColor: `${riskColor}25` }} />
+          <div className="p-6 md:p-8 pt-5 space-y-3">
+            <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-widest">
+              Why This Was Flagged
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {result.flaggedTechniques.map((technique) => {
+                const meta = TECHNIQUE_META[technique];
+                if (!meta) return null;
+                const Icon = meta.icon;
+                return (
+                  <span
+                    key={technique}
+                    data-testid={`tag-technique-${technique}`}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold"
+                    style={{ color: meta.color, backgroundColor: meta.bg, borderColor: meta.border }}
+                  >
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                    {meta.label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Bottom: indicator pills */}
       {result.indicators.length > 0 && (

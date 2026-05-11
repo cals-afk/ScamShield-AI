@@ -43,6 +43,7 @@ Analyse the phone number and return a JSON object with these exact fields:
 - threatType: 2-4 word label. Examples: "Robocall Scam", "Spoofed Number", "Premium Rate Fraud", "Unknown Caller", "Safe Number"
 - whySuspicious: 2-3 short sentences. Explain clearly what looks wrong — or why it seems fine. Examples: "This number starts with a code used by scammers in India. Numbers like this are often used for fake prize calls. Real companies rarely call from numbers like this." or "This is a standard UK mobile number. The format matches what real businesses use."
 - recommendedAction: one sentence starting with a verb. Examples: "Block this number and do not call back." or "This looks fine, but never share your passwords over the phone."
+- flaggedTechniques: array of strings. Pick only the ones that actually apply. Choose from: "urgency", "suspicious_link", "reward_bait", "phishing_language", "otp_request", "impersonation", "personal_info_request", "fear_tactics", "too_good_to_be_true". Use an empty array if the number looks safe.
 - indicators: 3-5 items, each with:
   - type: "red_flag", "yellow_flag", or "safe_signal"
   - description: one short sentence. Example: "The country code does not match the supposed sender's location."
@@ -64,6 +65,7 @@ Analyse the message and return a JSON object with these exact fields:
 - threatType: 2-4 word label. Examples: "Prize Scam", "Phishing Link", "Bank Impersonation", "Fake Delivery", "Urgency Trick", "Safe Message"
 - whySuspicious: 2-3 short sentences. Explain what the scammer is trying to do and why it is a trick. Use everyday words. Examples: "This message is pretending to be your bank. It wants you to click a link and enter your password. Your real bank will never ask for your password by text." or "This message matches what a real delivery company would send. The link goes to a known official website."
 - recommendedAction: one sentence starting with a verb. Examples: "Delete this message and do not click any links." or "This looks safe, but always go directly to the official website instead of clicking links in messages."
+- flaggedTechniques: array of strings. Pick only the ones that actually apply. Choose from: "urgency", "suspicious_link", "reward_bait", "phishing_language", "otp_request", "impersonation", "personal_info_request", "fear_tactics", "too_good_to_be_true". Use an empty array if the message looks safe.
 - indicators: 3-5 items, each with:
   - type: "red_flag", "yellow_flag", or "safe_signal"
   - description: one short sentence. Example: "The link in the message goes to a fake website, not a real bank." or "The sender's number is not a recognised business number."
@@ -107,6 +109,15 @@ Respond ONLY with valid JSON. No markdown. No explanation outside the JSON.`,
         }))
       : [];
 
+    const validTechniques = [
+      "urgency", "suspicious_link", "reward_bait", "phishing_language",
+      "otp_request", "impersonation", "personal_info_request", "fear_tactics",
+      "too_good_to_be_true",
+    ];
+    const flaggedTechniques = Array.isArray(parsed.flaggedTechniques)
+      ? parsed.flaggedTechniques.filter((t: unknown) => validTechniques.includes(String(t)))
+      : [];
+
     res.json({
       scamPercentage,
       verdict,
@@ -114,6 +125,7 @@ Respond ONLY with valid JSON. No markdown. No explanation outside the JSON.`,
       threatType: String(parsed.threatType || "Unknown"),
       whySuspicious: String(parsed.whySuspicious || ""),
       recommendedAction: String(parsed.recommendedAction || ""),
+      flaggedTechniques,
       indicators,
     });
   } catch (err) {
