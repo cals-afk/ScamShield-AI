@@ -306,9 +306,9 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-6 md:p-8">
         {result.whySuspicious && (
           <InfoSection
-            label="Why It Looks Suspicious"
+            label={result.scamPercentage <= 20 ? "Why It Looks Safe" : "Why It Looks Suspicious"}
             value={result.whySuspicious}
-            icon={AlertCircle}
+            icon={result.scamPercentage <= 20 ? CheckCircle : AlertCircle}
             accentColor={riskColor}
           />
         )}
@@ -317,7 +317,7 @@ function ResultSection({ result, themePrimary }: { result: ScamAnalysis; themePr
             label="Recommended Action"
             value={result.recommendedAction}
             icon={ShieldCheck}
-            accentColor={result.scamPercentage <= 20 ? "#34d399" : riskColor}
+            accentColor={riskColor}
           />
         )}
       </div>
