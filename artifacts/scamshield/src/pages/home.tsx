@@ -216,13 +216,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-background text-foreground relative overflow-hidden flex flex-col items-center py-12 px-4 sm:px-6 animate-page-enter">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+    <div className="min-h-[100dvh] w-full bg-background text-foreground relative overflow-hidden flex flex-col items-center py-8 sm:py-12 px-4 sm:px-6 animate-page-enter">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.03)_1px,transparent_1px)] bg-[size:36px_36px] sm:bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      <div className="z-10 w-full max-w-3xl flex flex-col gap-8">
+      <div className="z-10 w-full max-w-3xl flex flex-col gap-5 sm:gap-8">
         {theme && (
           <div
-            className="text-center font-mono text-xs tracking-[0.4em] uppercase animate-slide-left-in delay-50"
+            className="text-center font-mono text-[9px] sm:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase animate-slide-left-in delay-50"
             style={{ color: `${primary}88` }}
           >
             {theme.label} · ACTIVE
@@ -230,28 +230,28 @@ export default function Home() {
         )}
 
         {/* Header */}
-        <header className="text-center space-y-4 animate-rise-in delay-100">
+        <header className="text-center space-y-2 sm:space-y-4 animate-rise-in delay-100">
           <h1
-            className="neon-title text-5xl md:text-6xl font-extrabold tracking-tight flex items-center justify-center gap-4"
+            className="neon-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight flex items-center justify-center gap-2 sm:gap-4"
             style={theme ? { color: primary, textShadow: `0 0 10px ${primary}, 0 0 30px ${primary}99, 0 0 60px ${primary}55` } : {}}
           >
             <Shield
-              className="neon-shield w-12 h-12 md:w-14 md:h-14 shrink-0"
+              className="neon-shield w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 shrink-0"
               style={theme ? { color: primary, filter: `drop-shadow(0 0 8px ${primary}) drop-shadow(0 0 20px ${primary}88)` } : {}}
             />
             Sentinel AI
           </h1>
-          <p className="text-muted-foreground text-lg md:text-xl font-mono uppercase tracking-widest">
-            AI-powered scam and phishing detection assistant
+          <p className="text-muted-foreground text-[10px] sm:text-sm md:text-base font-mono uppercase tracking-wider sm:tracking-widest px-4">
+            AI-powered scam and phishing detection
           </p>
           {character && (
-            <p className="font-mono text-sm" style={{ color: `${primary}99` }}>
+            <p className="font-mono text-xs sm:text-sm" style={{ color: `${primary}99` }}>
               Calibrated for {character}
             </p>
           )}
         </header>
 
-        <section className="flex flex-col gap-5">
+        <section className="flex flex-col gap-3 sm:gap-5">
           {/* Mode tabs */}
           <div
             className="flex rounded-xl border p-1 gap-1 animate-rise-in delay-200"
@@ -260,13 +260,14 @@ export default function Home() {
             {(["message", "phone_number"] as InputMode[]).map((mode) => {
               const isActive = inputMode === mode;
               const Icon = mode === "message" ? MessageSquare : Phone;
-              const label = mode === "message" ? "Message / SMS" : "Phone Number";
+              const labelFull = mode === "message" ? "Message / SMS" : "Phone Number";
+              const labelShort = mode === "message" ? "Message" : "Phone";
               return (
                 <button
                   key={mode}
                   data-testid={`tab-${mode}`}
                   onClick={() => handleModeSwitch(mode)}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-mono text-sm font-bold uppercase tracking-wider transition-all duration-400"
+                  className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-4 rounded-lg font-mono text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all duration-400 touch-manipulation"
                   style={
                     isActive
                       ? {
@@ -279,8 +280,9 @@ export default function Home() {
                         }
                   }
                 >
-                  <Icon className="w-4 h-4" />
-                  {label}
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <span className="hidden sm:inline">{labelFull}</span>
+                  <span className="sm:hidden">{labelShort}</span>
                 </button>
               );
             })}
@@ -296,7 +298,7 @@ export default function Home() {
               <div className="relative">
                 <textarea
                   data-testid="input-message"
-                  className="relative w-full h-48 md:h-56 bg-card border border-border rounded-xl p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-400 resize-none font-mono text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
+                  className="relative w-full h-40 sm:h-48 md:h-56 bg-card border border-border rounded-xl p-3 sm:p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-400 resize-none font-mono text-xs sm:text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
                   style={{ "--tw-ring-color": primary } as React.CSSProperties}
                   placeholder="PASTE SUSPICIOUS MESSAGE HERE..."
                   value={message}
@@ -356,7 +358,7 @@ export default function Home() {
             data-testid="button-analyse"
             onClick={handleAnalyse}
             disabled={analyseMessageMutation.isPending || !activeInput.trim()}
-            className="group relative w-full flex justify-center py-4 px-4 border text-lg font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 animate-rise-in delay-400"
+            className="group relative w-full flex justify-center py-3.5 sm:py-4 px-4 border text-sm sm:text-base md:text-lg font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 animate-rise-in delay-400 touch-manipulation"
             style={{
               backgroundColor: primary,
               borderColor: `${primary}66`,

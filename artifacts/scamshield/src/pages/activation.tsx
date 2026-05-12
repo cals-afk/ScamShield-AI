@@ -50,7 +50,6 @@ export default function Activation() {
     });
     setTimeout(() => setSweeping(true), 2800);
     setTimeout(() => setSilhouetteVisible(true), 300);
-    // Begin exit fade before ThemeContext unmounts (~3s mark)
     setTimeout(() => setExiting(true), 3300);
   }, []);
 
@@ -61,24 +60,27 @@ export default function Activation() {
       }`}
       style={{ backgroundColor: theme?.backgroundColor ?? "#0a0e1a" }}
     >
-      {/* ── Hero shadow layer ── */}
+      {/* Floating mode name — contained with overflow hidden so it never bleeds */}
       {character && (
         <div
-          className="animate-name-drift pointer-events-none select-none absolute"
-          style={{
-            bottom: "5%",
-            left: "50%",
-            fontSize: "clamp(5rem, 18vw, 14rem)",
-            fontFamily: "var(--app-font-sans)",
-            fontWeight: 900,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: primary,
-            whiteSpace: "nowrap",
-            lineHeight: 1,
-          }}
+          className="animate-name-drift pointer-events-none select-none absolute inset-0 flex items-end justify-center overflow-hidden"
+          style={{ paddingBottom: "2%", paddingLeft: "5%", paddingRight: "5%" }}
         >
-          {character}
+          <span
+            style={{
+              fontSize: "clamp(3.5rem, 15vw, 12rem)",
+              fontFamily: "var(--app-font-sans)",
+              fontWeight: 900,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: primary,
+              whiteSpace: "nowrap",
+              lineHeight: 1,
+              opacity: "inherit",
+            }}
+          >
+            {character}
+          </span>
         </div>
       )}
 
@@ -121,12 +123,12 @@ export default function Activation() {
         }}
       />
 
-      {/* ── Main content ── */}
-      <div className="relative z-10 flex flex-col items-center gap-8 px-6 text-center max-w-lg">
-        {/* Shield — slides in from top */}
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col items-center gap-5 sm:gap-8 px-4 sm:px-6 text-center max-w-sm w-full">
+        {/* Shield */}
         <div className="relative animate-rise-in delay-0">
           <Shield
-            className="w-20 h-20 animate-spin-slow"
+            className="w-14 h-14 sm:w-20 sm:h-20 animate-spin-slow"
             style={{
               color: primary,
               filter: `drop-shadow(0 0 20px ${primary}) drop-shadow(0 0 40px ${primary}88)`,
@@ -139,9 +141,9 @@ export default function Activation() {
         </div>
 
         {/* Label + tagline */}
-        <div className="space-y-2 animate-rise-in delay-150">
+        <div className="space-y-1.5 sm:space-y-2 animate-rise-in delay-150">
           <h2
-            className="text-3xl md:text-4xl font-extrabold tracking-widest font-sans"
+            className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-widest font-sans"
             style={{
               color: primary,
               textShadow: `0 0 20px ${primary}, 0 0 40px ${primary}88`,
@@ -150,23 +152,23 @@ export default function Activation() {
             {theme?.label ?? "ACTIVATING"}
           </h2>
           <p
-            className="font-mono text-sm tracking-widest"
+            className="font-mono text-[10px] sm:text-sm tracking-widest"
             style={{ color: `${primary}99` }}
           >
             {theme?.tagline ?? "Identity confirmed. System online."}
           </p>
         </div>
 
-        {/* Boot steps — each slides in from left with staggered delay */}
-        <div className="w-full max-w-xs space-y-2.5">
+        {/* Boot steps */}
+        <div className="w-full max-w-[240px] sm:max-w-xs space-y-2 sm:space-y-2.5">
           {STEPS.map((s, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 font-mono text-xs animate-step-slide-in"
+              className="flex items-center gap-2.5 sm:gap-3 font-mono text-xs animate-step-slide-in"
               style={{ animationDelay: `${i * 130 + 250}ms` }}
             >
               <div
-                className="w-2 h-2 rounded-full shrink-0 transition-all duration-500"
+                className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0"
                 style={{
                   backgroundColor: step > i ? primary : "transparent",
                   border: `1px solid ${primary}66`,
@@ -175,7 +177,7 @@ export default function Activation() {
                 }}
               />
               <span
-                className="transition-all duration-500"
+                className="text-[10px] sm:text-xs transition-all duration-500"
                 style={{
                   color: step > i ? primary : `${primary}44`,
                   textShadow: step > i ? `0 0 6px ${primary}88` : "none",
@@ -184,10 +186,7 @@ export default function Activation() {
                 {s.label.toUpperCase()}
               </span>
               {step > i && (
-                <span
-                  style={{ color: primary }}
-                  className="ml-auto animate-rise-in"
-                >
+                <span style={{ color: primary }} className="ml-auto animate-rise-in text-[10px] sm:text-xs">
                   OK
                 </span>
               )}
@@ -197,7 +196,7 @@ export default function Activation() {
 
         {/* Progress bar */}
         <div
-          className="w-48 h-px overflow-hidden rounded-full animate-rise-in delay-300"
+          className="w-36 sm:w-48 h-px overflow-hidden rounded-full animate-rise-in delay-300"
           style={{ backgroundColor: `${primary}22` }}
         >
           <div
@@ -209,12 +208,9 @@ export default function Activation() {
               transition: "width 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
           >
-            {/* Shimmer on fill */}
             <div
               className="absolute inset-0 animate-shimmer-h"
-              style={{
-                background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)`,
-              }}
+              style={{ background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)` }}
             />
           </div>
         </div>

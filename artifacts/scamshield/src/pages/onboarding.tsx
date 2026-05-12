@@ -41,39 +41,40 @@ function ModeCard({
     <button
       onClick={() => onSelect(mode)}
       disabled={activating}
-      className="group relative flex flex-col items-start gap-3 p-4 rounded-xl border text-left transition-all duration-300 focus:outline-none disabled:pointer-events-none"
+      className="group relative flex flex-col items-start gap-2.5 p-3 sm:p-4 rounded-xl border text-left transition-all duration-300 focus:outline-none disabled:pointer-events-none w-full"
       style={{
         borderColor: selected ? color : `${color}33`,
         backgroundColor: selected ? `${color}18` : `${color}08`,
         boxShadow: selected
-          ? `0 0 28px ${color}55, inset 0 0 20px ${color}11`
-          : `0 0 0px transparent`,
+          ? `0 0 24px ${color}44, inset 0 0 16px ${color}0d`
+          : "0 0 0px transparent",
         transform: selected ? "scale(1.02)" : "scale(1)",
+        transition: "border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease",
       }}
       onMouseEnter={(e) => {
         if (!selected)
-          (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}88`;
+          (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}77`;
       }}
       onMouseLeave={(e) => {
         if (!selected)
           (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}33`;
       }}
     >
-      {/* Top: icon + label */}
-      <div className="flex items-center gap-2.5 w-full">
+      {/* Icon + name row */}
+      <div className="flex items-center gap-2 w-full min-w-0">
         <div
           className="p-1.5 rounded-lg shrink-0"
           style={{
-            backgroundColor: `${color}22`,
+            backgroundColor: `${color}20`,
             color,
-            filter: selected ? `drop-shadow(0 0 6px ${color}88)` : "none",
+            filter: selected ? `drop-shadow(0 0 5px ${color}88)` : "none",
             transition: "filter 0.3s ease",
           }}
         >
-          <Icon className="w-4 h-4" />
+          <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </div>
         <span
-          className="font-mono text-xs font-bold tracking-widest uppercase leading-none"
+          className="font-mono text-[10px] sm:text-xs font-bold tracking-wider sm:tracking-widest uppercase leading-tight flex-1 min-w-0"
           style={{
             color: selected ? color : `${color}cc`,
             textShadow: selected ? `0 0 10px ${color}88` : "none",
@@ -84,7 +85,7 @@ function ModeCard({
         </span>
         {selected && (
           <div
-            className="ml-auto w-1.5 h-1.5 rounded-full animate-ping shrink-0"
+            className="w-1.5 h-1.5 rounded-full animate-ping shrink-0"
             style={{ backgroundColor: color }}
           />
         )}
@@ -92,15 +93,15 @@ function ModeCard({
 
       {/* Description */}
       <p
-        className="font-mono text-[10px] leading-relaxed"
-        style={{ color: `${color}88` }}
+        className="font-mono text-[9px] sm:text-[10px] leading-relaxed"
+        style={{ color: `${color}77` }}
       >
         {mode.description}
       </p>
 
-      {/* Bottom border glow sweep on hover */}
+      {/* Bottom glow line */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-px rounded-full transition-all duration-500 group-hover:opacity-100"
+        className="absolute bottom-0 left-0 right-0 h-px rounded-full transition-opacity duration-500"
         style={{
           background: `linear-gradient(to right, transparent, ${color}88, transparent)`,
           opacity: selected ? 1 : 0,
@@ -123,70 +124,74 @@ export default function Onboarding() {
   const handleDeploy = async () => {
     if (!selected || activating) return;
     setActivating(true);
-
-    // Theme is pre-defined — no API call needed.
-    // Transition immediately; image fetches in background.
     activateTheme(selected.name, selected.theme);
-
     void fetchHeroImage(selected).then((url) => {
       if (url) setHeroImage(url);
     });
   };
 
   return (
-    <div className="relative min-h-[100dvh] w-full flex flex-col items-center justify-center bg-background overflow-hidden py-12 px-4">
+    <div className="relative min-h-[100dvh] w-full flex flex-col items-center justify-start sm:justify-center bg-background overflow-hidden py-8 sm:py-12 px-4">
       {/* Grid texture */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.04)_1px,transparent_1px)] bg-[size:48px_48px]" />
-      {/* Radial spotlight */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.04)_1px,transparent_1px)] bg-[size:40px_40px] sm:bg-[size:48px_48px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_50%_40%,rgba(0,212,255,0.05)_0%,transparent_70%)]" />
 
-      <div className="relative z-10 w-full max-w-2xl flex flex-col items-center gap-8">
+      <div className="relative z-10 w-full max-w-2xl flex flex-col items-center gap-6 sm:gap-8">
+
         {/* ── Header ── */}
-        <div className="flex flex-col items-center gap-4 animate-rise-in">
-          <div className="flex items-center gap-3">
-            <Shield className="neon-shield w-8 h-8" />
-            <span className="neon-title text-xl font-extrabold tracking-widest">SENTINEL AI</span>
+        <div className="flex flex-col items-center gap-3 sm:gap-4 animate-rise-in">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Shield className="neon-shield w-6 h-6 sm:w-8 sm:h-8" />
+            <span className="neon-title text-lg sm:text-xl font-extrabold tracking-widest">SENTINEL AI</span>
           </div>
-          <div className="w-full max-w-xs h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-40" />
-          <div className="text-center space-y-1">
-            <p className="font-mono text-[10px] tracking-[0.35em] uppercase text-muted-foreground">
+          <div className="w-48 sm:w-64 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-40" />
+          <div className="text-center space-y-1 px-2">
+            <p className="font-mono text-[9px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-muted-foreground">
               Guardian Calibration — v3.0
             </p>
-            <h1 className="text-xl md:text-2xl font-bold font-mono text-foreground">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold font-mono text-foreground">
               Select Your{" "}
               <span className="text-primary">Sentinel Mode</span>
             </h1>
-            <p className="text-xs text-muted-foreground font-mono max-w-sm">
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-mono max-w-xs sm:max-w-sm">
               Each mode recalibrates your interface, threat analysis style, and defensive posture.
             </p>
           </div>
         </div>
 
-        {/* ── Mode grid ── */}
-        <div className="w-full grid grid-cols-2 sm:grid-cols-3 gap-3 animate-rise-in delay-200">
-          {SENTINEL_MODES.map((mode) => (
-            <ModeCard
-              key={mode.id}
-              mode={mode}
-              selected={selected?.id === mode.id}
-              activating={activating}
-              onSelect={handleSelect}
-            />
-          ))}
+        {/* ── Mode grid ──
+            1 col on phones < 480px, 2 cols on 480-639px, 3 cols on 640px+ */}
+        <div className="w-full grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 animate-rise-in delay-200">
+          {SENTINEL_MODES.map((mode, idx) => {
+            const isLoneMobile = SENTINEL_MODES.length % 2 !== 0 && idx === SENTINEL_MODES.length - 1;
+            return (
+              <div
+                key={mode.id}
+                className={isLoneMobile ? "min-[480px]:max-sm:col-span-2" : ""}
+              >
+                <ModeCard
+                  mode={mode}
+                  selected={selected?.id === mode.id}
+                  activating={activating}
+                  onSelect={handleSelect}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* ── Deploy button ── */}
         <div
-          className="w-full max-w-xs transition-all duration-500"
+          className="w-full sm:max-w-xs transition-all duration-500"
           style={{
-            opacity: selected ? 1 : 0.3,
-            transform: selected ? "translateY(0)" : "translateY(8px)",
+            opacity: selected ? 1 : 0.35,
+            transform: selected ? "translateY(0)" : "translateY(6px)",
           }}
         >
           <button
             onClick={() => void handleDeploy()}
             disabled={!selected || activating}
-            className="group relative w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-xl font-bold uppercase tracking-widest text-sm overflow-hidden transition-all duration-300 disabled:cursor-not-allowed"
+            className="group relative w-full flex items-center justify-center gap-2.5 py-3.5 sm:py-3.5 px-6 rounded-xl font-bold uppercase tracking-widest text-sm overflow-hidden transition-all duration-300 disabled:cursor-not-allowed touch-manipulation"
             style={{
               backgroundColor: selected?.theme.primaryColor ?? "#00d4ff",
               color: selected?.theme.backgroundColor ?? "#030f14",
@@ -211,15 +216,15 @@ export default function Onboarding() {
                 Deploying {selected?.name}...
               </span>
             ) : (
-              <span className="relative flex items-center gap-2 font-mono">
-                <Shield className="w-4 h-4" />
+              <span className="relative flex items-center gap-2 font-mono text-xs sm:text-sm">
+                <Shield className="w-4 h-4 shrink-0" />
                 Deploy {selected ? selected.name : "Mode"}
               </span>
             )}
           </button>
         </div>
 
-        <p className="text-[10px] text-muted-foreground/40 font-mono tracking-widest animate-rise-in delay-400">
+        <p className="text-[9px] sm:text-[10px] text-muted-foreground/40 font-mono tracking-widest animate-rise-in delay-400 text-center">
           SENTINEL GRID ONLINE · {SENTINEL_MODES.length} MODES AVAILABLE
         </p>
       </div>
