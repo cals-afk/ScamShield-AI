@@ -149,7 +149,7 @@ export default function Home() {
               className="neon-shield w-12 h-12 md:w-14 md:h-14 shrink-0"
               style={theme ? { color: primary, filter: `drop-shadow(0 0 8px ${primary}) drop-shadow(0 0 20px ${primary}88)` } : {}}
             />
-            ScamShield AI
+            Sentinel AI
           </h1>
           <p className="text-muted-foreground text-lg md:text-xl font-mono uppercase tracking-widest">
             AI-powered scam and phishing detection assistant

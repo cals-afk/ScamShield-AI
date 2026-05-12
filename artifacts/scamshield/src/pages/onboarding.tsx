@@ -89,7 +89,7 @@ export default function Onboarding() {
         <div className="flex items-center gap-4 mb-2 animate-slide-left-in delay-0">
           <Shield className="neon-shield w-10 h-10 shrink-0" />
           <span className="neon-title text-2xl font-extrabold tracking-widest">
-            SCAMSHIELD AI
+            SENTINEL AI
           </span>
         </div>
 
@@ -113,7 +113,7 @@ export default function Onboarding() {
             ?
           </h1>
           <p className="text-sm text-muted-foreground font-mono">
-            ScamShield will adapt its interface to match your hero's signature.
+            Sentinel will adapt its interface to match your hero's signature.
           </p>
         </div>
 
