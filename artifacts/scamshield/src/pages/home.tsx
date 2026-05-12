@@ -410,6 +410,240 @@ export default function Home() {
   );
 }
 
+/* ─────────────────────────────────────────────
+   SAFE RESULT  (scamPercentage ≤ 20)
+───────────────────────────────────────────── */
+const SAFE_GREEN = "#34d399";
+
+function SafeResult({ result }: { result: ScamAnalysis }) {
+  const safeSignals = result.indicators.filter((i) => i.type === "safe_signal");
+
+  return (
+    <div
+      className="mt-4 rounded-2xl overflow-hidden flex flex-col animate-result-card-in"
+      style={{
+        border: `1px solid ${SAFE_GREEN}33`,
+        backgroundColor: `${SAFE_GREEN}06`,
+      }}
+      data-testid="section-result"
+    >
+      {/* ── Status sweep banner ── */}
+      <div
+        className="relative overflow-hidden flex items-center justify-center gap-3 py-2.5 px-4"
+        style={{ backgroundColor: `${SAFE_GREEN}14`, borderBottom: `1px solid ${SAFE_GREEN}28` }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `linear-gradient(90deg, transparent 0%, ${SAFE_GREEN}33 40%, ${SAFE_GREEN}55 50%, ${SAFE_GREEN}33 60%, transparent 100%)`,
+            animation: "safe-banner-sweep 2.2s ease-in-out 0.1s both",
+          }}
+        />
+        <CheckCircle className="w-3.5 h-3.5 shrink-0 animate-safe-check-pop" style={{ color: SAFE_GREEN }} />
+        <span
+          className="font-mono text-xs uppercase tracking-[0.3em] font-bold"
+          style={{ color: SAFE_GREEN, textShadow: `0 0 10px ${SAFE_GREEN}88` }}
+        >
+          Message Verified Safe
+        </span>
+        <span
+          className="ml-auto font-mono text-[10px] tabular-nums"
+          style={{ color: `${SAFE_GREEN}66` }}
+        >
+          CONFIDENCE: HIGH
+        </span>
+      </div>
+
+      {/* ── Hero zone: radar rings + animated shield ── */}
+      <div className="flex flex-col items-center pt-10 pb-6 gap-5 relative">
+        {/* Ambient background glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `radial-gradient(ellipse 60% 55% at 50% 40%, ${SAFE_GREEN}0d 0%, transparent 70%)`,
+          }}
+        />
+
+        {/* Concentric radar rings */}
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 w-52 h-52 pointer-events-none flex items-center justify-center">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="absolute rounded-full border animate-ring-expand"
+              style={{
+                width: "80px",
+                height: "80px",
+                borderColor: `${SAFE_GREEN}55`,
+                animationDelay: `${i * 0.6}s`,
+                animationDuration: "1.8s",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Animated shield with check */}
+        <div className="relative z-10 animate-safe-glow">
+          <svg viewBox="0 0 96 96" className="w-24 h-24" fill="none">
+            {/* Shield body */}
+            <path
+              d="M48 8 L82 22 L82 50 C82 70 64 84 48 88 C32 84 14 70 14 50 L14 22 Z"
+              fill={`${SAFE_GREEN}18`}
+              stroke={SAFE_GREEN}
+              strokeWidth="2.5"
+              strokeLinejoin="round"
+            />
+            {/* Checkmark — draws itself */}
+            <polyline
+              points="30,50 42,62 66,36"
+              stroke={SAFE_GREEN}
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              className="animate-check-draw"
+              style={{ filter: `drop-shadow(0 0 6px ${SAFE_GREEN})` }}
+            />
+          </svg>
+        </div>
+
+        {/* Verdict + score */}
+        <div className="relative z-10 flex flex-col items-center gap-2 px-6 text-center">
+          <h2
+            className="text-3xl md:text-4xl font-black uppercase tracking-widest"
+            style={{
+              color: SAFE_GREEN,
+              textShadow: `0 0 16px ${SAFE_GREEN}99, 0 0 40px ${SAFE_GREEN}44`,
+            }}
+            data-testid="text-verdict"
+          >
+            {result.verdict.replace(/_/g, " ")}
+          </h2>
+          <p
+            className="font-mono text-sm"
+            style={{ color: `${SAFE_GREEN}99` }}
+            data-testid="text-explanation"
+          >
+            {result.explanation}
+          </p>
+        </div>
+
+        {/* ── Stat strip ── */}
+        <div className="relative z-10 flex items-stretch gap-3 px-6 w-full max-w-sm mt-2">
+          {[
+            { label: "Risk Score",    value: `${result.scamPercentage}%`, delay: "0ms" },
+            { label: "Threats Found", value: "0",                          delay: "80ms" },
+            { label: "Confidence",    value: "HIGH",                       delay: "160ms" },
+          ].map(({ label, value, delay }) => (
+            <div
+              key={label}
+              className="flex-1 flex flex-col items-center gap-1 rounded-xl py-3 px-2 animate-safe-counter-rise"
+              style={{
+                border: `1px solid ${SAFE_GREEN}28`,
+                backgroundColor: `${SAFE_GREEN}0a`,
+                animationDelay: delay,
+              }}
+            >
+              <span
+                className="text-xl font-black tabular-nums"
+                style={{ color: SAFE_GREEN, textShadow: `0 0 10px ${SAFE_GREEN}77` }}
+                data-testid="text-scam-percentage"
+              >
+                {value}
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: `${SAFE_GREEN}66` }}>
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Divider ── */}
+      <div className="mx-6 h-px" style={{ backgroundColor: `${SAFE_GREEN}20` }} />
+
+      {/* ── Why it's safe + recommended action ── */}
+      <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-3 animate-result-card-in delay-150">
+        {result.whySuspicious && (
+          <div
+            className="rounded-xl border p-4 flex flex-col gap-2"
+            style={{ borderColor: `${SAFE_GREEN}28`, backgroundColor: `${SAFE_GREEN}08` }}
+          >
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: SAFE_GREEN }} />
+              <span className="font-mono text-xs uppercase tracking-widest font-bold" style={{ color: SAFE_GREEN }}>
+                Why It Looks Safe
+              </span>
+            </div>
+            <p className="text-sm text-foreground/80 leading-relaxed">{result.whySuspicious}</p>
+          </div>
+        )}
+        {result.recommendedAction && (
+          <div
+            className="rounded-xl border p-4 flex flex-col gap-2"
+            style={{ borderColor: `${SAFE_GREEN}28`, backgroundColor: `${SAFE_GREEN}08` }}
+          >
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 shrink-0" style={{ color: SAFE_GREEN }} />
+              <span className="font-mono text-xs uppercase tracking-widest font-bold" style={{ color: SAFE_GREEN }}>
+                Recommended Action
+              </span>
+            </div>
+            <p className="text-sm text-foreground/80 leading-relaxed">{result.recommendedAction}</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Clean signals checklist ── */}
+      {safeSignals.length > 0 && (
+        <>
+          <div className="mx-6 h-px" style={{ backgroundColor: `${SAFE_GREEN}20` }} />
+          <div className="p-6 md:p-8 pt-4 space-y-3 animate-result-card-in delay-300">
+            <h4 className="font-mono text-xs uppercase tracking-widest" style={{ color: `${SAFE_GREEN}77` }}>
+              Verified Safe Signals
+            </h4>
+            <ul className="space-y-2">
+              {safeSignals.map((sig, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-3 p-3 rounded-lg border animate-rise-in"
+                  style={{
+                    backgroundColor: `${SAFE_GREEN}08`,
+                    borderColor: `${SAFE_GREEN}22`,
+                    animationDelay: `${300 + i * 60}ms`,
+                  }}
+                  data-testid={`item-indicator-${i}`}
+                >
+                  <CheckCircle
+                    className="w-4 h-4 shrink-0 mt-0.5"
+                    style={{ color: SAFE_GREEN, filter: `drop-shadow(0 0 4px ${SAFE_GREEN}88)` }}
+                  />
+                  <span className="text-sm text-foreground/80">{sig.description}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
+
+      {/* ── Footer clearance stamp ── */}
+      <div
+        className="mx-6 mb-6 mt-1 rounded-xl py-3 px-4 flex items-center justify-between animate-result-card-in delay-450"
+        style={{ backgroundColor: `${SAFE_GREEN}0a`, border: `1px solid ${SAFE_GREEN}22` }}
+      >
+        <span className="font-mono text-xs uppercase tracking-[0.25em]" style={{ color: `${SAFE_GREEN}66` }}>
+          Sentinel AI Clearance
+        </span>
+        <span
+          className="font-mono text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full"
+          style={{ color: SAFE_GREEN, backgroundColor: `${SAFE_GREEN}18`, border: `1px solid ${SAFE_GREEN}44` }}
+        >
+          ✓ CLEARED
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function InfoSection({
   label,
   value,
@@ -453,6 +687,8 @@ const TECHNIQUE_META: Record<string, { label: string; icon: React.ElementType; c
 };
 
 function ResultSection({ result, themePrimary: _p }: { result: ScamAnalysis; themePrimary: string }) {
+  if (result.scamPercentage <= 20) return <SafeResult result={result} />;
+
   const getRiskColor = (percentage: number) => {
     if (percentage <= 20) return "#34d399";
     if (percentage <= 50) return "#fbbf24";
