@@ -8,7 +8,10 @@ interface ThemeContextValue {
   theme: CharacterTheme | null;
   character: string;
   heroImageUrl: string | null;
-  activateTheme: (character: string, theme: CharacterTheme, heroImageUrl?: string) => void;
+  /** Called once theme is ready — always triggers hero_reveal for every character */
+  activateTheme: (character: string, theme: CharacterTheme) => void;
+  /** Called whenever the background image fetch completes */
+  setHeroImage: (url: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
@@ -17,6 +20,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   character: "",
   heroImageUrl: null,
   activateTheme: () => {},
+  setHeroImage: () => {},
 });
 
 function hexToHsl(hex: string): string {
@@ -60,7 +64,6 @@ function applyThemeToCss(theme: CharacterTheme) {
   root.style.setProperty("--sidebar-primary", primary);
   root.style.setProperty("--sidebar-ring", primary);
   root.style.setProperty("--sidebar-primary-border", primary);
-
   root.style.setProperty("--theme-primary-hex", theme.primaryColor);
   root.style.setProperty("--theme-secondary-hex", theme.secondaryColor);
   root.style.setProperty("--theme-accent-hex", theme.accentColor);
@@ -75,12 +78,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [character, setCharacter] = useState("");
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
 
-  const activateTheme = useCallback((char: string, t: CharacterTheme, imgUrl?: string) => {
+  // Always starts hero_reveal — every character gets the cinematic reveal
+  const activateTheme = useCallback((char: string, t: CharacterTheme) => {
     setCharacter(char);
     setTheme(t);
-    setHeroImageUrl(imgUrl ?? null);
+    setHeroImageUrl(null); // image will arrive later via setHeroImage
     applyThemeToCss(t);
-    setPhase(imgUrl ? "hero_reveal" : "activating");
+    setPhase("hero_reveal");
+  }, []);
+
+  // Called from onboarding once the background image fetch completes
+  const setHeroImage = useCallback((url: string) => {
+    setHeroImageUrl(url);
   }, []);
 
   useEffect(() => {
@@ -96,7 +105,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [phase]);
 
   return (
-    <ThemeContext.Provider value={{ phase, theme, character, heroImageUrl, activateTheme }}>
+    <ThemeContext.Provider value={{ phase, theme, character, heroImageUrl, activateTheme, setHeroImage }}>
       {children}
     </ThemeContext.Provider>
   );

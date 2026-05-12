@@ -15,12 +15,19 @@ async function fetchTheme(character: string): Promise<CharacterTheme> {
   return res.json() as Promise<CharacterTheme>;
 }
 
-async function fetchHeroImage(character: string): Promise<string | undefined> {
+async function fetchHeroImage(
+  character: string,
+  theme: CharacterTheme,
+): Promise<string | undefined> {
   try {
     const res = await fetch(`${BASE}/api/hero/image`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ character }),
+      body: JSON.stringify({
+        character,
+        primaryColor: theme.primaryColor,
+        backgroundColor: theme.backgroundColor,
+      }),
     });
     if (!res.ok) return undefined;
     const data = (await res.json()) as { imageUrl?: string };
@@ -37,7 +44,7 @@ export default function Onboarding() {
   const [isError, setIsError] = useState(false);
   const [exiting, setExiting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { activateTheme } = useTheme();
+  const { activateTheme, setHeroImage } = useTheme();
 
   useEffect(() => {
     const interval = setInterval(() => setShowCursor((c) => !c), 530);
@@ -57,13 +64,20 @@ export default function Onboarding() {
     setIsError(false);
 
     try {
-      const [theme, heroImageUrl] = await Promise.all([
-        fetchTheme(trimmed),
-        fetchHeroImage(trimmed),
-      ]);
+      // Wait only for the theme — hero_reveal starts immediately for every character
+      const theme = await fetchTheme(trimmed);
+
+      // Trigger exit animation, then transition to hero_reveal
       setExiting(true);
       await new Promise((r) => setTimeout(r, 400));
-      activateTheme(trimmed, theme, heroImageUrl);
+      activateTheme(trimmed, theme);
+
+      // Image fetch continues in the background — no await here.
+      // When it resolves, setHeroImage updates the context and the
+      // hero-reveal page fades the photo in over the silhouette.
+      void fetchHeroImage(trimmed, theme).then((url) => {
+        if (url) setHeroImage(url);
+      });
     } catch {
       setIsError(true);
       setIsPending(false);
@@ -85,7 +99,7 @@ export default function Onboarding() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_50%_50%,rgba(0,212,255,0.06)_0%,transparent_70%)]" />
 
       <div className="relative z-10 flex flex-col items-center gap-10 px-6 max-w-xl w-full text-center">
-        {/* Logo — slides in from left */}
+        {/* Logo */}
         <div className="flex items-center gap-4 mb-2 animate-slide-left-in delay-0">
           <Shield className="neon-shield w-10 h-10 shrink-0" />
           <span className="neon-title text-2xl font-extrabold tracking-widest">
