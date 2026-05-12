@@ -132,8 +132,8 @@ export default function Onboarding() {
 
   return (
     <div className="relative min-h-[100dvh] w-full flex flex-col items-center justify-start sm:justify-center bg-background overflow-hidden py-8 sm:py-12 px-4">
-      {/* Grid texture */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.04)_1px,transparent_1px)] bg-[size:40px_40px] sm:bg-[size:48px_48px]" />
+      {/* Animated grid texture */}
+      <div className="animate-grid-drift pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,212,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,212,255,0.04)_1px,transparent_1px)] bg-[size:40px_40px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_50%_40%,rgba(0,212,255,0.05)_0%,transparent_70%)]" />
 
       <div className="relative z-10 w-full max-w-2xl flex flex-col items-center gap-6 sm:gap-8">
@@ -224,8 +224,8 @@ export default function Onboarding() {
           </button>
         </div>
 
-        <p className="text-[9px] sm:text-[10px] text-muted-foreground/40 font-mono tracking-widest animate-rise-in delay-400 text-center">
-          SENTINEL GRID ONLINE · {SENTINEL_MODES.length} MODES AVAILABLE
+        <p className="text-[9px] sm:text-[10px] text-muted-foreground/30 font-mono tracking-widest animate-rise-in delay-400 text-center pb-8 sm:pb-0">
+          {SENTINEL_MODES.length} MODES AVAILABLE
         </p>
       </div>
     </div>

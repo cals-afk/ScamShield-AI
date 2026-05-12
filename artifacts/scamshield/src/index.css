@@ -459,6 +459,49 @@
   color: #00d4ff;
 }
 
+/* ── Animated background grid ── */
+@keyframes grid-drift {
+  0%   { background-position: 0px 0px, 0px 0px; }
+  100% { background-position: 40px 40px, 40px 40px; }
+}
+
+.animate-grid-drift {
+  animation: grid-drift 22s linear infinite;
+}
+
+/* ── HUD scan line: sweeps top → bottom, then pauses ── */
+@keyframes hud-scan-v {
+  0%   { top: -1px; opacity: 0; }
+  3%   { opacity: 0.9; }
+  55%  { top: 100%; opacity: 0.9; }
+  56%  { top: -1px; opacity: 0; }
+  100% { top: -1px; opacity: 0; }
+}
+
+.animate-hud-scan-v {
+  animation: hud-scan-v 11s linear -3s infinite;
+}
+
+/* ── HUD status dots: slow soft blink ── */
+@keyframes hud-blink {
+  0%, 40%, 60%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+
+.animate-hud-blink {
+  animation: hud-blink 3s ease-in-out infinite;
+}
+
+/* ── HUD corner brackets: gentle breathing glow ── */
+@keyframes hud-corner-breathe {
+  0%, 100% { opacity: 0.28; }
+  50%       { opacity: 0.55; }
+}
+
+.animate-hud-corner-breathe {
+  animation: hud-corner-breathe 4s ease-in-out infinite;
+}
+
 @layer base {
   * {
     @apply border-border;
