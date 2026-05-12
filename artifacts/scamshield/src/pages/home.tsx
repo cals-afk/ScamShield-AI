@@ -6,35 +6,65 @@ import { useTheme } from "@/context/ThemeContext";
 
 type InputMode = "message" | "phone_number";
 
-const SCAN_MESSAGES = [
-  "Scanning for phishing indicators...",
-  "Analyzing suspicious patterns...",
-  "Detecting social engineering tactics...",
-  "Cross-referencing threat signatures...",
-  "Evaluating scam behavior markers...",
-  "Checking for urgency manipulation...",
-  "Assessing risk level...",
+const SCAN_STEPS: { label: string; tag: string }[] = [
+  { label: "Initialising threat analysis engine",  tag: "BOOT"     },
+  { label: "Tokenising message structure",          tag: "PARSE"    },
+  { label: "Scanning phishing indicators",          tag: "PHISH"    },
+  { label: "Detecting urgency manipulation",        tag: "SOCIAL"   },
+  { label: "Cross-checking sender identity",        tag: "IDENTITY" },
+  { label: "Analyzing behavioral patterns",         tag: "BEHAV"    },
+  { label: "Inspecting embedded URLs & domains",    tag: "NET"      },
+  { label: "Evaluating linguistic deception cues",  tag: "NLP"      },
+  { label: "Evaluating scam probability score",     tag: "SCORE"    },
+  { label: "Compiling threat report",               tag: "REPORT"   },
 ];
 
-function ScanningAnimation({ primary }: { primary: string }) {
-  const [msgIndex, setMsgIndex] = useState(0);
-  const [fading, setFading] = useState(false);
+// Pseudo-random hex ticker seed
+function fakeHex(seed: number, len: number) {
+  let s = "";
+  for (let i = 0; i < len; i++) {
+    s += ((seed * 1103515245 + 12345 + i * 137) & 0xff).toString(16).padStart(2, "0").toUpperCase() + " ";
+  }
+  return s.trim();
+}
 
+function ScanningAnimation({ primary }: { primary: string }) {
+  const [step, setStep] = useState(0);          // which step is active
+  const [exiting, setExiting] = useState(false); // slide-out the active label
+  const [tick, setTick] = useState(0);          // drives hex ticker rerender
+  const [hexSeed, setHexSeed] = useState(42);
+
+  // Advance through steps
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFading(true);
+    const id = setInterval(() => {
+      setExiting(true);
       setTimeout(() => {
-        setMsgIndex((i) => (i + 1) % SCAN_MESSAGES.length);
-        setFading(false);
-      }, 320);
-    }, 1900);
-    return () => clearInterval(interval);
+        setStep((s) => Math.min(s + 1, SCAN_STEPS.length - 1));
+        setExiting(false);
+      }, 280);
+    }, 1800);
+    return () => clearInterval(id);
   }, []);
+
+  // Hex ticker — fast churn
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTick((t) => t + 1);
+      setHexSeed((s) => (s * 1103515245 + 12345) & 0x7fffffff);
+    }, 120);
+    return () => clearInterval(id);
+  }, []);
+
+  void tick; // suppress unused warning
+
+  const progress = Math.round(((step + 1) / SCAN_STEPS.length) * 100);
+  const completed = SCAN_STEPS.slice(0, step);
+  const active    = SCAN_STEPS[step];
 
   return (
     <div
-      className="relative overflow-hidden rounded-xl border animate-rise-in"
-      style={{ borderColor: `${primary}50`, backgroundColor: `${primary}06` }}
+      className="relative overflow-hidden rounded-xl border animate-rise-in font-mono"
+      style={{ borderColor: `${primary}40`, backgroundColor: `${primary}05` }}
       data-testid="scanning-animation"
     >
       {/* Sweeping scan line */}
@@ -42,61 +72,121 @@ function ScanningAnimation({ primary }: { primary: string }) {
         className="absolute inset-x-0 h-px animate-scan-sweep pointer-events-none z-10"
         style={{
           background: `linear-gradient(90deg, transparent 0%, ${primary} 40%, ${primary} 60%, transparent 100%)`,
-          boxShadow: `0 0 10px 2px ${primary}88`,
+          boxShadow: `0 0 12px 3px ${primary}66`,
         }}
       />
 
-      <div className="relative px-5 py-4 flex flex-col gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="flex gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="w-1.5 h-1.5 rounded-full animate-pulse"
-                style={{ backgroundColor: primary, animationDelay: `${i * 220}ms` }}
-              />
-            ))}
-          </div>
-          <span
-            className="font-mono text-xs uppercase tracking-[0.25em] animate-flicker-dim"
-            style={{ color: `${primary}99` }}
-          >
-            AI Analysis In Progress
+      {/* ── Header bar ── */}
+      <div
+        className="flex items-center gap-3 px-4 py-2.5 border-b"
+        style={{ borderColor: `${primary}25`, backgroundColor: `${primary}08` }}
+      >
+        <div className="flex gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full animate-pulse"
+              style={{ backgroundColor: primary, animationDelay: `${i * 200}ms` }}
+            />
+          ))}
+        </div>
+        <span className="text-xs uppercase tracking-[0.3em]" style={{ color: `${primary}99` }}>
+          Sentinel Threat Analysis
+        </span>
+        <span className="ml-auto text-xs" style={{ color: `${primary}55` }}>
+          PID:&nbsp;
+          <span style={{ color: `${primary}99` }}>
+            {(0x2A00 + step * 17).toString(16).toUpperCase()}
           </span>
-          <span
-            className="ml-auto font-mono text-xs animate-terminal-blink"
-            style={{ color: `${primary}66` }}
-          >
-            █
-          </span>
+        </span>
+        <span className="text-xs animate-terminal-blink" style={{ color: `${primary}77` }}>█</span>
+      </div>
+
+      <div className="px-4 pt-3 pb-4 flex flex-col gap-3">
+
+        {/* ── Completed steps log ── */}
+        <div className="flex flex-col gap-1 min-h-[2.4rem]">
+          {completed.slice(-3).map((s, i) => (
+            <div
+              key={s.tag}
+              className="flex items-center gap-2 text-xs"
+              style={{
+                color: `${primary}${i === completed.slice(-3).length - 1 ? "55" : "33"}`,
+                transition: "opacity 0.4s ease",
+              }}
+            >
+              <span style={{ color: `${primary}55` }}>✓</span>
+              <span className="uppercase tracking-widest text-[10px]" style={{ color: `${primary}44`, minWidth: "3.8rem" }}>
+                [{s.tag}]
+              </span>
+              <span>{s.label}</span>
+            </div>
+          ))}
         </div>
 
-        <div className="h-5 overflow-hidden">
-          <span
-            className="font-mono text-sm block"
-            style={{
-              color: primary,
-              opacity: fading ? 0 : 1,
-              transform: fading ? "translateY(-6px)" : "translateY(0)",
-              transition: "opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
-              textShadow: `0 0 12px ${primary}77`,
-            }}
-          >
-            {SCAN_MESSAGES[msgIndex]}
-          </span>
+        {/* ── Active step — slides up on change ── */}
+        <div className="overflow-hidden" style={{ height: "1.4rem" }}>
+          {active && (
+            <div
+              className="flex items-center gap-2 text-sm"
+              style={{
+                color: primary,
+                textShadow: `0 0 14px ${primary}88`,
+                opacity: exiting ? 0 : 1,
+                transform: exiting ? "translateY(-8px)" : "translateY(0)",
+                transition: "opacity 0.25s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1)",
+              }}
+            >
+              <span className="animate-terminal-blink" style={{ color: `${primary}cc` }}>▶</span>
+              <span
+                className="uppercase tracking-widest text-[10px]"
+                style={{ color: `${primary}99`, minWidth: "3.8rem" }}
+              >
+                [{active.tag}]
+              </span>
+              <span>{active.label}…</span>
+              <span
+                className="ml-auto text-xs tabular-nums"
+                style={{ color: `${primary}66` }}
+              >
+                {(step + 1).toString().padStart(2, "0")}&nbsp;/&nbsp;{SCAN_STEPS.length.toString().padStart(2, "0")}
+              </span>
+            </div>
+          )}
         </div>
 
+        {/* ── Hex data stream ticker ── */}
         <div
-          className="relative h-px rounded-full overflow-hidden"
-          style={{ backgroundColor: `${primary}20` }}
+          className="rounded px-2 py-1 text-[10px] tracking-widest overflow-hidden whitespace-nowrap select-none"
+          style={{ backgroundColor: `${primary}08`, color: `${primary}40`, borderLeft: `2px solid ${primary}30` }}
         >
+          {fakeHex(hexSeed, 22)}
+        </div>
+
+        {/* ── Progress bar ── */}
+        <div className="flex items-center gap-3">
           <div
-            className="absolute inset-y-0 w-1/4 animate-shimmer-h"
-            style={{
-              background: `linear-gradient(90deg, transparent, ${primary}, ${primary}cc, transparent)`,
-              boxShadow: `0 0 6px ${primary}`,
-            }}
-          />
+            className="flex-1 h-1 rounded-full overflow-hidden"
+            style={{ backgroundColor: `${primary}18` }}
+          >
+            <div
+              className="h-full rounded-full relative overflow-hidden"
+              style={{
+                width: `${progress}%`,
+                backgroundColor: primary,
+                boxShadow: `0 0 8px ${primary}`,
+                transition: "width 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+            >
+              <div
+                className="absolute inset-0 animate-shimmer-h"
+                style={{ background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)` }}
+              />
+            </div>
+          </div>
+          <span className="text-[11px] tabular-nums" style={{ color: `${primary}77` }}>
+            {progress}%
+          </span>
         </div>
       </div>
     </div>
