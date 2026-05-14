@@ -34,15 +34,15 @@ function ScanningAnimation({ primary }: { primary: string }) {
   const [tick, setTick] = useState(0);          // drives hex ticker rerender
   const [hexSeed, setHexSeed] = useState(42);
 
-  // Advance through steps
+  // Advance through steps with smoother transitions
   useEffect(() => {
     const id = setInterval(() => {
       setExiting(true);
       setTimeout(() => {
         setStep((s) => Math.min(s + 1, SCAN_STEPS.length - 1));
         setExiting(false);
-      }, 280);
-    }, 1800);
+      }, 320);
+    }, 1900);
     return () => clearInterval(id);
   }, []);
 
@@ -267,20 +267,36 @@ export default function Home() {
                   key={mode}
                   data-testid={`tab-${mode}`}
                   onClick={() => handleModeSwitch(mode)}
-                  className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-4 rounded-lg font-mono text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all duration-400 touch-manipulation"
+                  className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-mono text-[11px] sm:text-sm font-bold uppercase tracking-wider touch-manipulation min-h-[44px] sm:min-h-[48px]"
                   style={
                     isActive
                       ? {
                           backgroundColor: primary,
                           color: theme?.backgroundColor ?? "#0a0e1a",
                           boxShadow: `0 0 16px ${primary}66`,
+                          transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                          transform: "scale(1)",
                         }
                       : {
                           color: `${primary}88`,
+                          transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+                          transform: "scale(0.98)",
                         }
                   }
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = `${primary}15`;
+                      (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
+                      (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.98)";
+                    }
+                  }}
                 >
-                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" />
                   <span className="hidden sm:inline">{labelFull}</span>
                   <span className="sm:hidden">{labelShort}</span>
                 </button>
@@ -291,14 +307,14 @@ export default function Home() {
           {/* Input area */}
           <div className="relative group animate-rise-in delay-300">
             <div
-              className="absolute -inset-0.5 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition-all duration-600"
+              className="absolute -inset-0.5 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition-all duration-700 ease-out"
               style={{ background: `${primary}33` }}
             />
             {inputMode === "message" ? (
               <div className="relative">
                 <textarea
                   data-testid="input-message"
-                  className="relative w-full h-40 sm:h-48 md:h-56 bg-card border border-border rounded-xl p-3 sm:p-4 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-400 resize-none font-mono text-xs sm:text-sm md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
+                  className="relative w-full h-44 sm:h-52 md:h-60 bg-card border border-border rounded-xl p-4 sm:p-5 md:p-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-400 ease-out resize-none font-mono text-sm sm:text-base md:text-base shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] leading-relaxed"
                   style={{ "--tw-ring-color": primary } as React.CSSProperties}
                   placeholder="PASTE SUSPICIOUS MESSAGE HERE..."
                   value={message}
@@ -323,14 +339,14 @@ export default function Home() {
             ) : (
               <div className="relative">
                 <div
-                  className="relative w-full bg-card border border-border rounded-xl px-5 py-5 flex items-center gap-3 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:border-transparent transition-all duration-400"
+                  className="relative w-full bg-card border border-border rounded-xl px-4 sm:px-5 py-4 sm:py-5 flex items-center gap-3 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:border-transparent transition-all duration-400 ease-out min-h-[56px] sm:min-h-[60px]"
                   style={{ "--tw-ring-color": primary } as React.CSSProperties}
                 >
-                  <Phone className="w-5 h-5 shrink-0 transition-colors duration-300" style={{ color: `${primary}88` }} />
+                  <Phone className="w-5 h-5 sm:w-5.5 sm:h-5.5 shrink-0 transition-colors duration-350" style={{ color: `${primary}88` }} />
                   <input
                     data-testid="input-phone"
                     type="tel"
-                    className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none font-mono text-base md:text-lg tracking-widest"
+                    className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none font-mono text-base sm:text-lg tracking-widest"
                     placeholder="+1 800 555 0199"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
@@ -358,32 +374,59 @@ export default function Home() {
             data-testid="button-analyse"
             onClick={handleAnalyse}
             disabled={analyseMessageMutation.isPending || !activeInput.trim()}
-            className="group relative w-full flex justify-center py-3.5 sm:py-4 px-4 border text-sm sm:text-base md:text-lg font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 animate-rise-in delay-400 touch-manipulation"
+            className="group relative w-full flex justify-center py-3.5 sm:py-4 md:py-5 px-4 sm:px-6 border text-sm sm:text-base md:text-lg font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider overflow-hidden animate-rise-in delay-400 touch-manipulation min-h-[48px] sm:min-h-[52px]"
             style={{
               backgroundColor: primary,
               borderColor: `${primary}66`,
               color: theme?.backgroundColor ?? "#0a0e1a",
               boxShadow: `0 0 20px ${primary}55`,
-              transition: "box-shadow 0.4s ease, transform 0.2s ease, opacity 0.3s ease",
+              transition: "box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease",
+              transform: "translateY(0) scale(1)",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 50px ${primary}bb, 0 0 80px ${primary}44`;
+              if (!analyseMessageMutation.isPending && activeInput.trim()) {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 50px ${primary}bb, 0 0 80px ${primary}44`;
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px) scale(1.01)";
+              }
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 20px ${primary}55`;
+              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(1)";
+            }}
+            onMouseDown={(e) => {
+              if (!analyseMessageMutation.isPending && activeInput.trim()) {
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0) scale(0.98)";
+              }
+            }}
+            onMouseUp={(e) => {
+              if (!analyseMessageMutation.isPending && activeInput.trim()) {
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px) scale(1.01)";
+              }
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-            <span className="relative flex items-center gap-2 transition-all duration-300 group-hover:gap-3">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-800 ease-in-out" />
+            <span className="relative flex items-center gap-2 sm:gap-2.5 transition-all duration-350 group-hover:gap-3">
               {analyseMessageMutation.isPending ? (
                 <>
-                  <Zap className="animate-pulse" />
-                  ANALYSING...
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
+                  <span className="hidden xs:inline">ANALYSING</span>
+                  <span className="xs:hidden">SCAN</span>
+                  <span>...</span>
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="transition-transform duration-300 group-hover:rotate-12" />
-                  {inputMode === "message" ? "ANALYSE THREAT" : "CHECK NUMBER"}
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-350 group-hover:rotate-12" />
+                  {inputMode === "message" ? (
+                    <>
+                      <span className="hidden sm:inline">ANALYSE THREAT</span>
+                      <span className="sm:hidden">ANALYSE</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="hidden sm:inline">CHECK NUMBER</span>
+                      <span className="sm:hidden">CHECK</span>
+                    </>
+                  )}
                 </>
               )}
             </span>

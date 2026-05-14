@@ -96,6 +96,7 @@ const PULSE_INTERVAL_RANGE = 240;
 export default function ParticleBackground({ theme, phase }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef({ phase, theme });
+  const resizeTimeoutRef = useRef<number>();
 
   useEffect(() => {
     stateRef.current = { phase, theme };
@@ -104,12 +105,26 @@ export default function ParticleBackground({ theme, phase }: Props) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) return;
 
+    // Detect if device is low-performance (mobile or reduced motion preference)
+    const isLowPerformance = window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+                             /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Debounce resize for better performance
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
+      resizeTimeoutRef.current = window.setTimeout(() => {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x for performance
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
+        canvas.style.width = `${window.innerWidth}px`;
+        canvas.style.height = `${window.innerHeight}px`;
+        ctx.scale(dpr, dpr);
+      }, 150);
     };
     resize();
     window.addEventListener("resize", resize);
@@ -130,31 +145,48 @@ export default function ParticleBackground({ theme, phase }: Props) {
     }
 
     const cfg = getPhaseConfig(stateRef.current.phase);
-    for (let i = 0; i < cfg.count; i++) {
-      const p = spawnParticle(canvas.width, canvas.height, cfg.speed);
+    // Reduce particle count on low-performance devices
+    const particleCount = isLowPerformance ? Math.floor(cfg.count * 0.6) : cfg.count;
+    
+    for (let i = 0; i < particleCount; i++) {
+      const p = spawnParticle(window.innerWidth, window.innerHeight, cfg.speed);
       particles.push(p);
     }
 
     let animRef = 0;
+    let lastTime = performance.now();
+    const targetFPS = isLowPerformance ? 30 : 60;
+    const frameInterval = 1000 / targetFPS;
 
-    function animate() {
+    function animate(currentTime: number) {
+      const deltaTime = currentTime - lastTime;
+      
+      // Throttle frame rate on low-performance devices
+      if (deltaTime < frameInterval) {
+        animRef = requestAnimationFrame(animate);
+        return;
+      }
+      
+      lastTime = currentTime - (deltaTime % frameInterval);
+
       const { phase: curPhase, theme: curTheme } = stateRef.current;
       const config = getPhaseConfig(curPhase);
       const color = curTheme?.primaryColor ?? "#00d4ff";
       const shape = curTheme?.particleShape ?? "circle";
       const [r, g, b] = hexToRgb(color);
 
-      const w = canvas!.width;
-      const h = canvas!.height;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
 
       ctx!.clearRect(0, 0, w, h);
 
       /* ── Reconcile particle count ── */
-      while (particles.length < config.count) {
+      const targetCount = isLowPerformance ? Math.floor(config.count * 0.6) : config.count;
+      while (particles.length < targetCount) {
         particles.push(spawnParticle(w, h, config.speed));
       }
-      if (particles.length > config.count) {
-        particles = particles.slice(0, config.count);
+      if (particles.length > targetCount) {
+        particles = particles.slice(0, targetCount);
       }
 
       /* ── Update positions ── */
@@ -177,16 +209,21 @@ export default function ParticleBackground({ theme, phase }: Props) {
         }
       }
 
-      /* ── Draw connection lines ── */
+      /* ── Draw connection lines (optimized) ── */
       ctx!.lineWidth = 0.6;
       const maxDist = config.connectionDist;
+      const maxDistSq = maxDist * maxDist; // Use squared distance to avoid sqrt
+      
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           if (Math.abs(dx) > maxDist) continue;
           const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < maxDist) {
+          if (Math.abs(dy) > maxDist) continue;
+          
+          const distSq = dx * dx + dy * dy;
+          if (distSq < maxDistSq) {
+            const dist = Math.sqrt(distSq);
             const lineAlpha = (1 - dist / maxDist) * config.connectionOpacity;
             ctx!.strokeStyle = `rgba(${r},${g},${b},${lineAlpha.toFixed(3)})`;
             ctx!.beginPath();
@@ -197,7 +234,7 @@ export default function ParticleBackground({ theme, phase }: Props) {
         }
       }
 
-      /* ── Draw regular particles ── */
+      /* ── Draw regular particles (batch by shadow blur) ── */
       ctx!.shadowBlur = 5;
       ctx!.shadowColor = color;
       for (const p of particles) {
@@ -226,10 +263,13 @@ export default function ParticleBackground({ theme, phase }: Props) {
       animRef = requestAnimationFrame(animate);
     }
 
-    animate();
+    animRef = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("resize", resize);
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
       cancelAnimationFrame(animRef);
     };
   }, []);

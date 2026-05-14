@@ -7,23 +7,41 @@ function CornerBracket({
   pos: "tl" | "tr" | "bl" | "br";
   color: string;
 }) {
-  const SIZE = 18;
+  const SIZE = 20;
+  const SIZE_SM = 16;
   const BW = "1.5px";
   const base: React.CSSProperties = {
     position: "absolute",
     width: SIZE,
     height: SIZE,
+    transition: "opacity 0.4s ease, width 0.3s ease, height 0.3s ease",
   };
+  
+  // Responsive positioning
+  const mobileOffset = 12;
+  const desktopOffset = 18;
+  
   const style: React.CSSProperties =
     pos === "tl"
-      ? { ...base, top: 18, left: 18, borderTop: `${BW} solid ${color}`, borderLeft: `${BW} solid ${color}` }
+      ? { ...base, top: desktopOffset, left: desktopOffset, borderTop: `${BW} solid ${color}`, borderLeft: `${BW} solid ${color}` }
       : pos === "tr"
-      ? { ...base, top: 18, right: 18, borderTop: `${BW} solid ${color}`, borderRight: `${BW} solid ${color}` }
+      ? { ...base, top: desktopOffset, right: desktopOffset, borderTop: `${BW} solid ${color}`, borderRight: `${BW} solid ${color}` }
       : pos === "bl"
-      ? { ...base, bottom: 18, left: 18, borderBottom: `${BW} solid ${color}`, borderLeft: `${BW} solid ${color}` }
-      : { ...base, bottom: 18, right: 18, borderBottom: `${BW} solid ${color}`, borderRight: `${BW} solid ${color}` };
+      ? { ...base, bottom: desktopOffset, left: desktopOffset, borderBottom: `${BW} solid ${color}`, borderLeft: `${BW} solid ${color}` }
+      : { ...base, bottom: desktopOffset, right: desktopOffset, borderBottom: `${BW} solid ${color}`, borderRight: `${BW} solid ${color}` };
 
-  return <div className="animate-hud-corner-breathe" style={style} />;
+  return (
+    <div
+      className="animate-hud-corner-breathe"
+      style={{
+        ...style,
+        '@media (max-width: 640px)': {
+          width: SIZE_SM,
+          height: SIZE_SM,
+        }
+      }}
+    />
+  );
 }
 
 export default function HudOverlay() {
@@ -52,53 +70,53 @@ export default function HudOverlay() {
 
       {/* Top-center: status label */}
       <div
-        className="absolute top-[18px] left-1/2 -translate-x-1/2 flex items-center gap-2"
+        className="absolute top-[16px] sm:top-[18px] left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 transition-opacity duration-500"
         style={{ opacity: 0.6 }}
       >
         <div
-          className="w-1 h-1 rounded-full animate-hud-blink"
+          className="w-1 h-1 rounded-full animate-hud-blink transition-all duration-300"
           style={{ backgroundColor: primary }}
         />
         <span
-          className="font-mono text-[8px] tracking-[0.35em] uppercase"
+          className="font-mono text-[7px] sm:text-[8px] tracking-[0.3em] sm:tracking-[0.35em] uppercase transition-all duration-300"
           style={{ color: primary }}
         >
           Threat Monitor
         </span>
         <div
-          className="w-1 h-1 rounded-full animate-hud-blink"
+          className="w-1 h-1 rounded-full animate-hud-blink transition-all duration-300"
           style={{ backgroundColor: primary, animationDelay: "0.6s" }}
         />
       </div>
 
       {/* Bottom-center: grid status */}
       <div
-        className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-3"
+        className="absolute bottom-2.5 sm:bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3 transition-opacity duration-500"
         style={{ opacity: 0.5 }}
       >
         <div
-          className="w-1 h-1 rounded-full animate-hud-blink"
+          className="w-1 h-1 rounded-full animate-hud-blink transition-all duration-300"
           style={{ backgroundColor: primary, animationDelay: "0.3s" }}
         />
         <span
-          className="font-mono text-[8px] tracking-[0.3em] uppercase"
+          className="font-mono text-[7px] sm:text-[8px] tracking-[0.25em] sm:tracking-[0.3em] uppercase transition-all duration-300"
           style={{ color: primary }}
         >
           Sentinel Grid Online
         </span>
         <div
-          className="w-1 h-1 rounded-full animate-hud-blink"
+          className="w-1 h-1 rounded-full animate-hud-blink transition-all duration-300"
           style={{ backgroundColor: primary, animationDelay: "0.9s" }}
         />
       </div>
 
-      {/* Left edge: vertical label — hidden on very small phones */}
+      {/* Left edge: vertical label — hidden on small screens */}
       <div
-        className="absolute left-3 top-1/2 -translate-y-1/2 hidden sm:block"
+        className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 hidden md:block transition-opacity duration-500"
         style={{ opacity: 0.28 }}
       >
         <span
-          className="font-mono text-[7px] tracking-[0.3em] uppercase"
+          className="font-mono text-[7px] tracking-[0.3em] uppercase transition-all duration-300"
           style={{
             color: primary,
             writingMode: "vertical-rl",
@@ -109,13 +127,13 @@ export default function HudOverlay() {
         </span>
       </div>
 
-      {/* Right edge: vertical label — hidden on very small phones */}
+      {/* Right edge: vertical label — hidden on small screens */}
       <div
-        className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:block"
+        className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 hidden md:block transition-opacity duration-500"
         style={{ opacity: 0.28 }}
       >
         <span
-          className="font-mono text-[7px] tracking-[0.3em] uppercase"
+          className="font-mono text-[7px] tracking-[0.3em] uppercase transition-all duration-300"
           style={{
             color: primary,
             writingMode: "vertical-rl",
