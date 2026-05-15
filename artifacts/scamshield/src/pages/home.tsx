@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAnalyseMessage } from "@workspace/api-client-react";
-import { AlertCircle, AlertTriangle, CheckCircle, CreditCard, ExternalLink, Gift, KeyRound, MessageSquare, Phone, Shield, ShieldAlert, ShieldCheck, Timer, UserX, Zap } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle, CreditCard, ExternalLink, Gift, KeyRound, MessageSquare, Phone, RefreshCw, Shield, ShieldAlert, ShieldCheck, Timer, UserX, Zap } from "lucide-react";
 import type { ScamAnalysis } from "@workspace/api-client-react";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -213,6 +213,12 @@ export default function Home() {
   const handleModeSwitch = (mode: InputMode) => {
     setInputMode(mode);
     analyseMessageMutation.reset();
+  };
+
+  const handleReset = () => {
+    analyseMessageMutation.reset();
+    setMessage("");
+    setPhoneNumber("");
   };
 
   return (
@@ -448,10 +454,100 @@ export default function Home() {
         )}
 
         {analyseMessageMutation.isSuccess && analyseMessageMutation.data && (
-          <ResultSection result={analyseMessageMutation.data} themePrimary={primary} />
+          <ResultSection result={analyseMessageMutation.data} themePrimary={primary} onReset={handleReset} />
         )}
       </div>
     </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   SHARED: Analyse Another footer button
+───────────────────────────────────────────── */
+function AnalyseAnotherFooter({ accentColor, onReset }: { accentColor: string; onReset: () => void }) {
+  return (
+    <>
+      <div className="h-px mx-6" style={{ backgroundColor: `${accentColor}22` }} />
+      <div
+        className="px-6 md:px-8 pb-7 pt-5 flex flex-col items-center gap-3 animate-result-card-in"
+        style={{ animationDelay: "600ms" }}
+      >
+        {/* "Analysis Complete" ruled separator */}
+        <div className="flex items-center gap-3 w-full max-w-sm">
+          <div className="h-px flex-1" style={{ backgroundColor: `${accentColor}18` }} />
+          <span
+            className="font-mono text-[8px] tracking-[0.4em] uppercase whitespace-nowrap"
+            style={{ color: `${accentColor}44` }}
+          >
+            Analysis Complete
+          </span>
+          <div className="h-px flex-1" style={{ backgroundColor: `${accentColor}18` }} />
+        </div>
+
+        {/* Corner-bracket wrapper + button */}
+        <div className="relative w-full max-w-sm group/wrap">
+          {/* Animated corner brackets — grow on hover */}
+          <div
+            className="absolute -top-1 -left-1 w-3 h-3 border-t-[1.5px] border-l-[1.5px] transition-all duration-300 group-hover/wrap:w-4 group-hover/wrap:h-4 pointer-events-none"
+            style={{ borderColor: `${accentColor}55` }}
+          />
+          <div
+            className="absolute -top-1 -right-1 w-3 h-3 border-t-[1.5px] border-r-[1.5px] transition-all duration-300 group-hover/wrap:w-4 group-hover/wrap:h-4 pointer-events-none"
+            style={{ borderColor: `${accentColor}55` }}
+          />
+          <div
+            className="absolute -bottom-1 -left-1 w-3 h-3 border-b-[1.5px] border-l-[1.5px] transition-all duration-300 group-hover/wrap:w-4 group-hover/wrap:h-4 pointer-events-none"
+            style={{ borderColor: `${accentColor}55` }}
+          />
+          <div
+            className="absolute -bottom-1 -right-1 w-3 h-3 border-b-[1.5px] border-r-[1.5px] transition-all duration-300 group-hover/wrap:w-4 group-hover/wrap:h-4 pointer-events-none"
+            style={{ borderColor: `${accentColor}55` }}
+          />
+
+          <button
+            onClick={onReset}
+            className="group relative w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl font-mono font-bold uppercase tracking-widest text-[11px] sm:text-xs overflow-hidden touch-manipulation transition-all duration-300 hover:scale-[1.015] hover:-translate-y-px active:scale-[0.99] active:translate-y-0"
+            style={{
+              color: accentColor,
+              border: `1px solid ${accentColor}35`,
+              backgroundColor: `${accentColor}07`,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = `0 0 24px ${accentColor}28, inset 0 0 20px ${accentColor}07`;
+              e.currentTarget.style.borderColor = `${accentColor}70`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = "none";
+              e.currentTarget.style.borderColor = `${accentColor}35`;
+            }}
+          >
+            {/* Shimmer sweep */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+
+            <RefreshCw
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 relative z-10 transition-transform duration-700 group-hover:rotate-180"
+              style={{ color: accentColor }}
+            />
+            <span className="relative z-10">Analyse Another Threat</span>
+
+            {/* Vertical separator + chevron */}
+            <span
+              className="relative z-10 w-px h-3 opacity-25 ml-1 shrink-0"
+              style={{ display: "inline-block", backgroundColor: accentColor }}
+            />
+            <span className="relative z-10 opacity-40 text-[10px] -ml-1">›</span>
+          </button>
+        </div>
+
+        {/* Footer caption */}
+        <span
+          className="font-mono text-[8px] tracking-[0.4em] uppercase"
+          style={{ color: `${accentColor}2e` }}
+        >
+          — Sentinel AI · Guardian Active —
+        </span>
+      </div>
+    </>
   );
 }
 
@@ -460,7 +556,7 @@ export default function Home() {
 ───────────────────────────────────────────── */
 const SAFE_GREEN = "#34d399";
 
-function SafeResult({ result }: { result: ScamAnalysis }) {
+function SafeResult({ result, onReset }: { result: ScamAnalysis; onReset: () => void }) {
   const safeSignals = result.indicators.filter((i) => i.type === "safe_signal");
 
   return (
@@ -685,6 +781,8 @@ function SafeResult({ result }: { result: ScamAnalysis }) {
           ✓ CLEARED
         </span>
       </div>
+
+      <AnalyseAnotherFooter accentColor={SAFE_GREEN} onReset={onReset} />
     </div>
   );
 }
@@ -731,8 +829,8 @@ const TECHNIQUE_META: Record<string, { label: string; icon: React.ElementType; c
   too_good_to_be_true:   { label: "Too Good to Be True",     icon: AlertCircle,   color: "#f97316", bg: "rgba(249,115,22,0.08)",  border: "rgba(249,115,22,0.25)" },
 };
 
-function ResultSection({ result, themePrimary: _p }: { result: ScamAnalysis; themePrimary: string }) {
-  if (result.scamPercentage <= 20) return <SafeResult result={result} />;
+function ResultSection({ result, themePrimary: _p, onReset }: { result: ScamAnalysis; themePrimary: string; onReset: () => void }) {
+  if (result.scamPercentage <= 20) return <SafeResult result={result} onReset={onReset} />;
 
   const getRiskColor = (percentage: number) => {
     if (percentage <= 20) return "#34d399";
@@ -919,6 +1017,8 @@ function ResultSection({ result, themePrimary: _p }: { result: ScamAnalysis; the
           </div>
         </>
       )}
+
+      <AnalyseAnotherFooter accentColor={riskColor} onReset={onReset} />
     </div>
   );
 }
