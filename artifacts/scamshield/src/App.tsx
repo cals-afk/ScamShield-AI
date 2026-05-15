@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
 import Activation from "@/pages/activation";
 import HeroReveal from "@/pages/hero-reveal";
+import Splash from "@/pages/splash";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import ParticleBackground from "@/components/ParticleBackground";
 import HudOverlay from "@/components/HudOverlay";
@@ -21,9 +22,10 @@ function AppShell() {
       {/* Always-on particle canvas — behind everything at z-0 */}
       <ParticleBackground theme={theme} phase={phase} />
 
-      {/* HUD overlay — shown on the two persistent pages */}
-      {(phase === "onboarding" || phase === "ready") && <HudOverlay />}
+      {/* HUD overlay — shown on persistent interactive pages */}
+      {(phase === "splash" || phase === "onboarding" || phase === "ready") && <HudOverlay />}
 
+      {phase === "splash" && <Splash />}
       {phase === "onboarding" && <Onboarding />}
       {phase === "hero_reveal" && <HeroReveal />}
       {phase === "activating" && <Activation />}

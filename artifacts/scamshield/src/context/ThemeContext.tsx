@@ -1,13 +1,15 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import type { CharacterTheme } from "@workspace/api-client-react";
 
-export type AppPhase = "onboarding" | "hero_reveal" | "activating" | "ready";
+export type AppPhase = "splash" | "onboarding" | "hero_reveal" | "activating" | "ready";
 
 interface ThemeContextValue {
   phase: AppPhase;
   theme: CharacterTheme | null;
   character: string;
   heroImageUrl: string | null;
+  /** Move past the splash screen to onboarding */
+  exitSplash: () => void;
   /** Called once theme is ready — always triggers hero_reveal for every character */
   activateTheme: (character: string, theme: CharacterTheme) => void;
   /** Called whenever the background image fetch completes */
@@ -15,10 +17,11 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  phase: "onboarding",
+  phase: "splash",
   theme: null,
   character: "",
   heroImageUrl: null,
+  exitSplash: () => {},
   activateTheme: () => {},
   setHeroImage: () => {},
 });
@@ -73,21 +76,23 @@ function applyThemeToCss(theme: CharacterTheme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [phase, setPhase] = useState<AppPhase>("onboarding");
+  const [phase, setPhase] = useState<AppPhase>("splash");
   const [theme, setTheme] = useState<CharacterTheme | null>(null);
   const [character, setCharacter] = useState("");
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
 
-  // Always starts hero_reveal — every character gets the cinematic reveal
+  const exitSplash = useCallback(() => {
+    setPhase("onboarding");
+  }, []);
+
   const activateTheme = useCallback((char: string, t: CharacterTheme) => {
     setCharacter(char);
     setTheme(t);
-    setHeroImageUrl(null); // image will arrive later via setHeroImage
+    setHeroImageUrl(null);
     applyThemeToCss(t);
     setPhase("hero_reveal");
   }, []);
 
-  // Called from onboarding once the background image fetch completes
   const setHeroImage = useCallback((url: string) => {
     setHeroImageUrl(url);
   }, []);
@@ -105,7 +110,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [phase]);
 
   return (
-    <ThemeContext.Provider value={{ phase, theme, character, heroImageUrl, activateTheme, setHeroImage }}>
+    <ThemeContext.Provider value={{ phase, theme, character, heroImageUrl, exitSplash, activateTheme, setHeroImage }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -33,13 +33,7 @@ function CornerBracket({
   return (
     <div
       className="animate-hud-corner-breathe"
-      style={{
-        ...style,
-        '@media (max-width: 640px)': {
-          width: SIZE_SM,
-          height: SIZE_SM,
-        }
-      }}
+      style={style}
     />
   );
 }

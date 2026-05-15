@@ -462,6 +462,12 @@
   color: #00d4ff;
 }
 
+/* ── Counter-clockwise orbital rotation ── */
+@keyframes orbit-ccw {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
 /* ── Animated background grid ── */
 @keyframes grid-drift {
   0%   { background-position: 0px 0px, 0px 0px; }

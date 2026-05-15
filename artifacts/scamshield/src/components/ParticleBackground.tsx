@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { CharacterTheme } from "@workspace/api-client-react";
 
-type Phase = "onboarding" | "hero_reveal" | "activating" | "ready";
+type Phase = "splash" | "onboarding" | "hero_reveal" | "activating" | "ready";
 
 interface Particle {
   x: number;
@@ -96,7 +96,7 @@ const PULSE_INTERVAL_RANGE = 240;
 export default function ParticleBackground({ theme, phase }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef({ phase, theme });
-  const resizeTimeoutRef = useRef<number>();
+  const resizeTimeoutRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     stateRef.current = { phase, theme };
