@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAnalyseMessage } from "@workspace/api-client-react";
-import { AlertCircle, AlertTriangle, CheckCircle, CreditCard, ExternalLink, Gift, KeyRound, MessageSquare, Phone, RefreshCw, Shield, ShieldAlert, ShieldCheck, Timer, UserX, Zap } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle, CreditCard, ExternalLink, Gift, Home as HomeIcon, KeyRound, MessageSquare, Phone, RefreshCw, Shield, ShieldAlert, ShieldCheck, Timer, UserX, Zap } from "lucide-react";
 import type { ScamAnalysis } from "@workspace/api-client-react";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -465,6 +465,7 @@ export default function Home() {
    SHARED: Analyse Another footer button
 ───────────────────────────────────────────── */
 function AnalyseAnotherFooter({ accentColor, onReset }: { accentColor: string; onReset: () => void }) {
+  const { returnToOnboarding } = useTheme();
   return (
     <>
       <div className="h-px mx-6" style={{ backgroundColor: `${accentColor}22` }} />
@@ -538,6 +539,32 @@ function AnalyseAnotherFooter({ accentColor, onReset }: { accentColor: string; o
             <span className="relative z-10 opacity-40 text-[10px] -ml-1">›</span>
           </button>
         </div>
+
+        {/* Home Page button */}
+        <button
+          onClick={returnToOnboarding}
+          className="group flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-mono text-[10px] sm:text-[11px] uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] hover:-translate-y-px active:scale-[0.98] touch-manipulation"
+          style={{
+            color: `${accentColor}55`,
+            border: `1px solid ${accentColor}1a`,
+            backgroundColor: "transparent",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = `${accentColor}cc`;
+            e.currentTarget.style.borderColor = `${accentColor}40`;
+            e.currentTarget.style.backgroundColor = `${accentColor}07`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = `${accentColor}55`;
+            e.currentTarget.style.borderColor = `${accentColor}1a`;
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
+        >
+          <HomeIcon
+            className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 transition-transform duration-300 group-hover:-translate-y-px"
+          />
+          <span>Home Page</span>
+        </button>
 
         {/* Footer caption */}
         <span

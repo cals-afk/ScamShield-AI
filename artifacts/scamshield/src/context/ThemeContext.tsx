@@ -14,6 +14,8 @@ interface ThemeContextValue {
   activateTheme: (character: string, theme: CharacterTheme) => void;
   /** Called whenever the background image fetch completes */
   setHeroImage: (url: string) => void;
+  /** Return to the Guardian mode selection screen */
+  returnToOnboarding: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
@@ -24,6 +26,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   exitSplash: () => {},
   activateTheme: () => {},
   setHeroImage: () => {},
+  returnToOnboarding: () => {},
 });
 
 function hexToHsl(hex: string): string {
@@ -97,6 +100,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setHeroImageUrl(url);
   }, []);
 
+  const returnToOnboarding = useCallback(() => {
+    setPhase("onboarding");
+    setTheme(null);
+    setCharacter("");
+    setHeroImageUrl(null);
+  }, []);
+
   useEffect(() => {
     if (phase === "hero_reveal") {
       const timer = setTimeout(() => setPhase("activating"), 5800);
@@ -110,7 +120,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [phase]);
 
   return (
-    <ThemeContext.Provider value={{ phase, theme, character, heroImageUrl, exitSplash, activateTheme, setHeroImage }}>
+    <ThemeContext.Provider value={{ phase, theme, character, heroImageUrl, exitSplash, activateTheme, setHeroImage, returnToOnboarding }}>
       {children}
     </ThemeContext.Provider>
   );
